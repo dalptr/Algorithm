@@ -1,7 +1,3 @@
-#include<bits/stdc++.h>
-
-using namespace std;
-
 long long mulModulo(long long a, long long b, long long c) {
     long long x = 0, y = a % c;
     while (b != 0) {
@@ -50,6 +46,3 @@ bool isPrime(long long n) {
     return true;
 }
 
-int main() {
-    cout << isPrime(776102473077477571);
-}
