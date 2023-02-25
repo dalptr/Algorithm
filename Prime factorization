@@ -1,7 +1,7 @@
 class PollardRho {
 public:
     using i64 = long long;
-    map<i64, int> ans;
+    std::map<i64, int> ans;
 
     i64 random(i64 range) {
         return abs(rand()) % range;
@@ -60,20 +60,23 @@ public:
         while (p == 1) {
             x = f(x, n);
             y = f(f(y, n), n);
-            p = __gcd(abs(x - y), n);
+            p = std::__gcd(abs(x - y), n);
         }
         return p;
     }
-
+    void native_factorize(int n){
+        for (int i = 2; i * i <= n; i++) {
+            while (n % i == 0) {
+                ans[i]++;
+                n /= i;
+            }
+        }
+        if (n > 1) ans[n]++;
+        return;
+    }
     void factorize(i64 n) {
         if (n <= 1000000) {
-            for (int i = 2; i * i <= n; i++) {
-                while (n % i == 0) {
-                    ans[i]++;
-                    n /= i;
-                }
-            }
-            if (n > 1) ans[n]++;
+            native_factorize(n);
             return;
         }
         if (rabin(n)) {
