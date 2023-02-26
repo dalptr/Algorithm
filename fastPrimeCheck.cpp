@@ -1,48 +1,47 @@
-long long mulModulo(long long a, long long b, long long c) {
-    long long x = 0, y = a % c;
-    while (b != 0) {
-        if (b & 1) {
-            x = (x + y) % c;
-        }
-        y = (y << 1) % c;
-        b >>= 1;
-    }
-    return x % c;
+using i64 = long long;
+
+i64 random(i64 range) {
+    return abs(rand()) % range;
 }
 
-long long fastPower(long long base, long long exponent, long long modulo) {
-    long long result = 1;
-    while (exponent != 0) {
-        if (exponent & 1) {
-            result = mulModulo(result, base, modulo);
-        }
-        base = mulModulo(base, base, modulo);
-        exponent >>= 1;
-    }
-    return result;
+i64 mul(i64 a, i64 b, i64 p) {
+    a %= p;
+    b %= p;
+    i64 q = (i64) ((long double) a * b / p);
+    i64 r = a * b - q * p;
+    while (r < 0) r += p;
+    while (r >= p) r -= p;
+    return r;
 }
 
-bool isPrime(long long n) {
+i64 pow(i64 u, i64 v, i64 n) {
+    i64 res = 1;
+    while (v) {
+        if (v & 1) res = mul(res, u, n);
+        u = mul(u, u, n);
+        v >>= 1;
+    }
+    return res;
+}
+
+bool rabin(i64 n) {
     if (n < 2) return false;
-    long long d = n - 1;
-    int s = 0;
-    while (d % 2 == 0) {
+    if (n == 2) return true;
+    i64 s = 0, m = n - 1;
+    while (m % 2 == 0) {
         s++;
-        d >>= 1;
+        m >>= 1;
     }
-    int a[9] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
-    for (int i = 0; i < 9; i++) {
-        bool composite = fastPower(a[i], d, n) != 1;
-        if (composite)
-            for (int j = 0; j < s; j++) {
-                long long fp = fastPower(a[i], (1LL << (long long) j) * d, n);
-                if (fp == n - 1) {
-                    composite = false;
-                    break;
-                }
-            }
-        if (composite) return false;
+    for (int it = 1; it <= 40; it++) {
+        i64 u = random(n - 2) + 2;
+        i64 f = pow(u, m, n);
+        if (f == 1 || f == n - 1) continue;
+        for (int i = 1; i < s; i++) {
+            f = mul(f, f, n);
+            if (f == 1) return false;
+            if (f == n - 1) break;
+        }
+        if (f != n - 1) return false;
     }
     return true;
 }
-
