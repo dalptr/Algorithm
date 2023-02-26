@@ -1,4 +1,5 @@
 using i64 = long long;
+constexpr int accuracy = 20;
 
 i64 random(i64 range) {
     return abs(rand()) % range;
@@ -32,7 +33,7 @@ bool rabin(i64 n) {
         s++;
         m >>= 1;
     }
-    for (int it = 1; it <= 40; it++) {
+    for (int it = 0; it < accuracy; it++) {
         i64 u = random(n - 2) + 2;
         i64 f = pow(u, m, n);
         if (f == 1 || f == n - 1) continue;
