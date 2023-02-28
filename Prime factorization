@@ -72,7 +72,6 @@ public:
             }
         }
         if (n > 1) ans[n]++;
-        return;
     }
     void factorize(i64 n) {
         if (n <= 1000000) {
