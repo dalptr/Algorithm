@@ -27,6 +27,3 @@ def check_prime(n: int):
 
     return True
 
-
-q = int(input())
-print(check_prime(q))
