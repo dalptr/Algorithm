@@ -1,4 +1,4 @@
-def check_prime_int64(n: int):
+def check_prime_big_int(n: int):
     if n < 2:
         return False
     assert n < 3825123056546413051  # references https://oeis.org/A014233
