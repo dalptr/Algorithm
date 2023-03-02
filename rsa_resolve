@@ -8,54 +8,58 @@ using i128 = __int128;
 using u64 = unsigned long long;
 using u128 = __uint128_t;
 
-template <class T>
+template<class T>
 void read(T &x) {
     char c;
     for (c = getchar(); c < '0' || c > '9'; c = getchar());
     for (x = 0; c <= '9' && c >= '0'; c = getchar())
         x = x * 10 + (c & 15);
 }
-template <class I>
+
+template<class I>
 string to_str(I x) {
     if (!x) return "0";
     if (x < 0) return "-" + to_str(-x);
     string res = "";
-    while (x){
+    while (x) {
         res += x % 10 + '0', x /= 10;
     }
     reverse(res.begin(), res.end());
     return res;
 }
+
 ostream &operator<<(ostream &out, i128 x) {
     return (out << to_str(x));
 }
+
 ostream &operator<<(ostream &out, u128 x) {
     return (out << to_str(x));
 }
 
 namespace Solver {
-    u64 pow_64(u64 a, u64 t, u64 mod) {
+    u64 pow_64(u128 a, u64 t, u64 mod) {
         u64 r = 1;
-        for (; t; t >>= 1, a = u128(a) * a % mod){
+        for (; t; t >>= 1, a = a * a % mod) {
             if (t & 1) r = u128(r) * a % mod;
         }
         return r;
     }
-    bool check_prime(u64 n) {
-        static const int jp[] = { 2, 3, 5, 7, 11, 13, 17, 19 };
+
+    bool is_prime(u64 n) {
+        static const int jp[] = {2, 3, 5, 7, 11, 13, 17, 19};
         if (n == 1) return false;
-        for (int p : jp){
+        for (int p: jp) {
             if (n % p == 0) return n == p;
         }
         u64 r = n - 1, x, y;
         int e = 0;
-        while (~r & 1){
+        while (~r & 1) {
             r >>= 1, ++e;
         }
-        for (int p : jp) {
+        for (int p: jp) {
             x = pow_64(p, r, n);
             for (int t = 0; t < e && x > 1; ++t) {
-                y = (i128)x * x % n;
+                y = (i128) x * x % n;
                 if (y == 1 && x != n - 1) return false;
                 x = y;
             }
@@ -63,19 +67,21 @@ namespace Solver {
         }
         return true;
     }
+
     u64 next_prime(u64 n) {
         n += ~n & 1;
-        while (!check_prime(n += 2));
+        while (!is_prime(n += 2));
         return n;
     }
 
     u128 ctz(u128 x) {
         return u64(x) ? __builtin_ctzll(x) : __builtin_ctzll(x >> 64) + 64;
     }
+
     u128 gcd(u128 a, u128 b) {
         if (!a || !b) return a | b;
         int shift = ctz(a | b);
-        for (b >>= ctz(b); a; a -= b){
+        for (b >>= ctz(b); a; a -= b) {
             if ((a >>= ctz(a)) < b) swap(a, b);
         }
         return b << shift;
@@ -83,7 +89,6 @@ namespace Solver {
 
     struct u256 {
         u128 lo, hi;
-        u256() {}
         u256(u128 lo, u128 hi) : lo(lo), hi(hi) {}
         static u256 mul128(u128 a, u128 b) {
             u64 a_hi = a >> 64, a_lo = u64(a);
@@ -99,6 +104,7 @@ namespace Solver {
 
     struct Mont {
         u128 mod, inv, r2;
+
         Mont(u128 n) : mod(n) {
             assert(n & 1);
             inv = n;
@@ -112,49 +118,56 @@ namespace Solver {
             for (int i = 0; i < 5; ++i)
                 r2 = mul(r2, r2);
         }
+
         u128 reduce(u256 x) const {
             u128 y = x.hi - u256::mul128(x.lo * inv, mod).hi;
             return i128(y) < 0 ? y + mod : y;
         }
+
         u128 init(u128 n) const {
             return reduce(u256::mul128(n, r2));
         }
+
         u128 mul(u128 a, u128 b) const {
             return reduce(u256::mul128(a, b));
         }
     } mont(1);
 
     i128 N;
+
     i128 add(i128 a, i128 b) {
         return (a += b) <= N ? a : a - N;
     }
+
     i128 mul(i128 a, i128 b) {
         return mont.mul(a, b);
     }
-    void exgcd(i128 a, i128 b, i128 &x, i128 &y) {
-        if (b == 0)
-            return (void)(x = 1, y = 0);
 
-        exgcd(b, a % b, y, x), y -= a / b * x;
+    void extend_gcd(i128 a, i128 b, i128 &x, i128 &y) {
+        if (b == 0) return (void) (x = 1, y = 0);
+        extend_gcd(b, a % b, y, x), y -= a / b * x;
     }
+
     i128 inv128(i128 t) {
         i128 q = N, x, y;
-        exgcd(t, q, x, y);
+        extend_gcd(t, q, x, y);
         return (x % N + N) % N;
     }
 
     const int L = 250;
-    int prime[L], pcnt, root[L];
+    int prime[L], prime_cnt, root[L];
     u128 _mont_prime[L];
-    f64 logp[L];
+    f64 log_p[L];
 
     struct word {
         bitset<L> mask;
         u128 lhs, rhs;
         int bit;
+
         word() {
             mask = lhs = rhs = 0, bit = L;
         }
+
         void merge(word &x) {
             lhs = mul(lhs, x.lhs), rhs = mul(rhs, x.rhs);
             bitset<L> cons = mask & x.mask;
@@ -165,33 +178,31 @@ namespace Solver {
             mask ^= x.mask, bit = mask._Find_first();
         }
     };
+
     vector<word> smooth;
     unordered_map<i64, word> data;
     bool flag = true;
+
     void insert(word &o) {
         int x;
-
         for (x = 0; x < smooth.size(); ++x) {
             if (smooth[x].bit > o.bit)
                 break;
-
             if (smooth[x].bit == o.bit)
                 o.merge(smooth[x]);
         }
-
         if (o.bit == L) {
             u128 g = gcd(o.lhs + o.rhs, N);
-
             if (g != 1 && g != N) {
                 if (g > N / g)
                     g = N / g;
-
                 cout << g << ' ' << N / g << endl;
                 flag = false;
             }
         } else
             smooth.insert(smooth.begin() + x, o);
     }
+
     void try_insert(i128 x, i128 y) {
         while (x < 0)
             x += N;
@@ -199,7 +210,7 @@ namespace Solver {
         word ins;
         ins.lhs = x, ins.rhs = 1;
 
-        for (int k = 1; k <= pcnt; ++k) {
+        for (int k = 1; k <= prime_cnt; ++k) {
             int cnt = 0;
 
             while (y % prime[k] == 0)
@@ -223,9 +234,10 @@ namespace Solver {
                 data[y] = ins;
         }
 
-        if (y == 1)
+        if (y == 1 && flag)
             insert(ins);
     }
+
     void init() {
         int i, j;
         int B = pow(log(1. * N), 2) * .6;
@@ -237,7 +249,7 @@ namespace Solver {
                     mark[j >> 1] = true;
 
         auto append = [&](int p) {
-            prime[++pcnt] = p, _mont_prime[pcnt] = mont.init(p), logp[pcnt] = log(p);
+            prime[++prime_cnt] = p, _mont_prime[prime_cnt] = mont.init(p), log_p[prime_cnt] = log(p);
         };
 
         for (append(2), i = 3; i <= B; i += 2)
@@ -245,29 +257,24 @@ namespace Solver {
                 if (pow_64(N % i, i >> 1, i) == 1)
                     append(i);
 
-        for (i = 1; i <= pcnt; ++i)
-            for (j = N % prime[i]; root[i] * root[i] % prime[i] != j; ++root[i])
-                ;
+        for (i = 1; i <= prime_cnt; ++i)
+            for (j = N % prime[i]; root[i] * root[i] % prime[i] != j; ++root[i]);
     }
+
     void main() {
         read(N);
         mont = Mont(N);
         init();
-        int M = pcnt * 50;
+        int M = prime_cnt * 50;
         i64 D = sqrt(sqrt(2. * N) / M);
         f64 bound = log(M * sqrt(.5 * N)) * 0.75;
 
         while (flag) {
-            do{
+            do {
                 D = next_prime(D);
-            }
-            while ((D & 3) == 1);
-
+            } while ((D & 3) == 1);
             u64 y0 = pow_64(u64(N % D), (D + 1) >> 2, D);
-
-            if ((i128(y0) * y0 - N) % D)
-                continue;
-
+            if ((i128(y0) * y0 - N) % D) continue;
             u64 y1 = u64((N - y0 * y0) / D % D + D) % D;
             y1 = u128(y1) * (D / 2 + 1) % D * pow_64(y0, D - 2, D) % D;
             i128 A = i128(D) * D;
@@ -276,34 +283,29 @@ namespace Solver {
             i128 E = mul(mont.init(B), inv128(D));
             vector<f64> pos(M), neg(M);
 
-            for (int x = 1; x <= pcnt; ++x) {
+            for (int x = 1; x <= prime_cnt; ++x) {
                 int p = prime[x], a = A % p, inv_a = 1;
-
-                if (!a)
-                    continue;
-
-                while (a > 1)
+                if (a == 0) continue;
+                while (a > 1) {
                     inv_a = (p - inv_a) * (p / a) % p, a = p % a;
-
+                }
                 int u = (p - B % p) * inv_a % p, v = root[x] * inv_a % p;
                 int r1 = (u + v) % p, r2 = (u - v + p) % p;
-
                 for (int su = 0; su < M; su += p) {
                     if (su + r1 < M)
-                        pos[su + r1] += logp[x];
+                        pos[su + r1] += log_p[x];
 
                     if (su + r2 < M)
-                        pos[su + r2] += logp[x];
+                        pos[su + r2] += log_p[x];
 
                     if (su > 0)
-                        neg[su - r1] += logp[x], neg[su - r2] += logp[x];
+                        neg[su - r1] += log_p[x], neg[su - r2] += log_p[x];
                 }
             }
 
             for (int x = 0; x < M; ++x) {
                 if (pos[x] > bound)
                     try_insert(E + D * x, A * x * x + 2 * B * x + C);
-
                 if (neg[x] > bound)
                     try_insert(E - D * x, A * x * x - 2 * B * x + C);
             }
