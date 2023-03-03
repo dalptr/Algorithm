@@ -1,13 +1,13 @@
 const uint64_t tests[] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
 
-uint64_t pow_64(__uint128_t a, uint64_t t, uint64_t mod) {
-    uint64_t r = 1;
-    for (; t; t >>= 1, a = a * a % mod) {
-        if (t & 1) {
-            r = __uint128_t(r) * a % mod;
+uint64_t pow_64(__uint128_t base, uint64_t exp, uint64_t modulo) {
+    uint64_t res = 1;
+    for (; exp; exp >>= 1, base = base * base % modulo) {
+        if (exp & 1) {
+            res = __uint128_t(res) * base % modulo;
         }
     }
-    return r;
+    return res;
 }
 
 bool is_prime(uint64_t n) {
