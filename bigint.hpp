@@ -1,9 +1,7 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-#define us [[maybe_unused]]
-#define ROF(i, a, b) for (int i = (b)-1; i >= (a); --i)
-#define R0F(i, a) ROF(i,0,a)
+
 typedef int64_t i64;
 typedef uint64_t u64;
 #define sz(x) int((x).size())
@@ -21,28 +19,33 @@ struct bigint {
         *this = v;
     }
 
-    bigint &operator=(i64 v) {
+    bigint &operator=(i64 v) { // verify
         sign = v < 0 ? -1 : 1;
         v *= sign;
         z.clear();
-        for (; v; v /= base) z.push_back(v % base);
+        while (v != 0) {
+            z.push_back(v % base);
+            v /= base;
+        }
         return *this;
     }
 
-    bigint(const string &s) {
+    bigint(const string &s) { // verify
         read(s);
     }
 
-    bigint &operator+=(const bigint &other) {
-        const u64 n = other.z.size();
+    bigint &operator+=(const bigint &other) { // verify
+        const int n = other.z.size();
         if (sign == other.sign) {
-            for (u64 i = 0, carry = 0; i < n || carry; ++i) {
+            for (int i = 0, carry = 0; i < n || carry; ++i) {
                 if (i == z.size()) {
                     z.push_back(0);
                 }
                 z[i] += carry + (i < n ? other.z[i] : 0);
                 carry = z[i] >= base;
-                if (carry) z[i] -= base;
+                if (carry) {
+                    z[i] -= base;
+                }
             }
         } else if (other != 0) {
             *this -= -other;
@@ -50,7 +53,9 @@ struct bigint {
         return *this;
     }
 
-    friend bigint operator+(bigint a, const bigint &b) { return a += b; }
+    friend bigint operator+(bigint a, const bigint &b) { // verify
+        return a += b;
+    }
 
     bigint &operator-=(const bigint &other) {
         const int n = other.z.size();
@@ -70,9 +75,11 @@ struct bigint {
         return *this;
     }
 
-    friend bigint operator-(bigint a, const bigint &b) { return a -= b; }
+    friend bigint operator-(bigint a, const bigint &b) { // verify
+        return a -= b;
+    }
 
-    bigint &operator*=(int v) {
+    bigint &operator*=(int v) { // verify
         if (v < 0) {
             sign = -sign, v = -v;
         }
@@ -125,7 +132,7 @@ struct bigint {
         firstDigit = (int) ::sqrt((long double) a.z[n - 1] * base + a.z[n - 2]);
         int q = firstDigit;
         bigint res;
-        R0F(j, n / 2) {
+        for (int j = (n / 2) - 1; j >= 0; --j) {
             while (1) {
                 bigint r1 = (r - (res * 2 * base + q) * q) * base * base +
                             (j > 0 ? (i64) a.z[2 * j - 1] * base + a.z[2 * j - 2] : 0);
@@ -179,9 +186,17 @@ struct bigint {
     bigint &operator/=(const bigint &v) { return *this = *this / v; }
 
     bool operator<(const bigint &v) const {
-        if (sign != v.sign) return sign < v.sign;
-        if (sz(z) != sz(v.z)) return sz(z) * sign < sz(v.z) * v.sign;
-        R0F(i, sz(z)) if (z[i] != v.z[i]) return z[i] * sign < v.z[i] * sign;
+        if (sign != v.sign) {
+            return sign < v.sign;
+        }
+        if (z.size() != v.z.size()) {
+            return (sign * z.size()) < (v.z.size() * v.sign);
+        }
+        for (u64 i = z.size() - 1; i >= 0; --i) {
+            if (z[i] != v.z[i]) {
+                return z[i] * sign < v.z[i] * sign;
+            }
+        }
         return 0;
     }
 
@@ -217,7 +232,9 @@ struct bigint {
 
     [[maybe_unused]] i64 to_int64() const {
         i64 res = 0;
-        R0F(i, sz(z)) res = res * base + z[i];
+        for (u64 i = z.size() - 1; i >= (0); --i) {
+            res = res * base + z[i];
+        }
         return res * sign;
     }
 
@@ -225,7 +242,7 @@ struct bigint {
         return b.isZero() ? a : gcd(b, a % b);
     }
 
-    us friend bigint lcm(const bigint &a, const bigint &b) {
+    [[maybe_unused]] friend bigint lcm(const bigint &a, const bigint &b) {
         return a / gcd(a, b) * b;
     }
 
@@ -233,11 +250,12 @@ struct bigint {
         sign = 1;
         z.clear();
         int pos = 0;
-        while (pos < sz(s) && (s[pos] == '-' || s[pos] == '+')) {
+        const int n = s.size();
+        while (pos < n && (s[pos] == '-' || s[pos] == '+')) {
             if (s[pos] == '-') sign = -sign;
             ++pos;
         }
-        for (int i = sz(s) - 1; i >= pos; i -= base_digits) {
+        for (int i = n - 1; i >= pos; i -= base_digits) {
             int x = 0;
             for (int j = max(pos, i - base_digits + 1); j <= i; j++)
                 x = x * 10 + s[j] - '0';
@@ -256,14 +274,16 @@ struct bigint {
     friend ostream &operator<<(ostream &os, const bigint &v) {
         if (v.sign == -1) os << '-';
         os << (!sz(v.z) ? 0 : v.z.back());
-        R0F(i, sz(v.z) - 1) os << setw(base_digits) << setfill('0') << v.z[i];
+        for (int i = v.z.size() - 1; i >= 0; --i) {
+            os << setw(base_digits) << setfill('0') << v.z[i];
+        }
         return os;
     }
 
     static vector<int> convert_base(const vector<int> &a, int old_digits, int new_digits) {
-        vector<i64> p(max(old_digits, new_digits) + 1); // blocks of 10^{old} -> 10^{new}
+        vector<i64> p(max(old_digits, new_digits) + 1);
         p[0] = 1;
-        for (int i = 1, end = sz(p); i < end; ++i) {
+        for (int i = 1, end = p.size(); i < end; ++i) {
             p[i] = p[i - 1] * 10;
         }
         vector<int> res;
@@ -279,12 +299,14 @@ struct bigint {
             }
         }
         res.push_back(cur);
-        while (sz(res) && res.back() == 0) res.pop_back();
+        while (!res.empty() && res.back() == 0) {
+            res.pop_back();
+        }
         return res;
     }
 
     static vector<i64> karatMul(const vector<i64> &a, const vector<i64> &b) { // karatsuba
-        int n = sz(a);
+        const int n = a.size();
         vector<i64> res(2 * n);
         if (n <= 32) {
             for (int i = 0; i < n; ++i) {
@@ -367,12 +389,18 @@ struct bigint {
         return res;
     }
 
-    us friend string ts(const bigint &v) {
+    [[maybe_unused]] friend string ts(const bigint &v) {
         stringstream ss;
         ss << v;
         string s;
         ss >> s;
         return s;
+    }
+
+    void testStable() {
+        u64 u64_t = 12345;
+        bigint bigint1 = u64_t;
+        assert(u64_t == bigint1.to_int64());
     }
 };
 
@@ -385,10 +413,8 @@ bigint random_bigint(int n) {
 }
 
 int main() {
-    vector<int> v = {1, 2, 3};
-    bool x = !sz(v);
-    bool y = v.empty();
-    if (x == y) {
-        cout << "equal";
-    }
+    u64 q = 18393993939494;
+    bigint t = q;
+    t.testStable();
+    cout << t;
 }
