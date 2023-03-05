@@ -1,23 +1,18 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+#define us [[maybe_unused]]
 #define ROF(i, a, b) for (int i = (b)-1; i >= (a); --i)
 #define R0F(i, a) ROF(i,0,a)
 typedef int64_t i64;
-
-#define tcT template<class T
-tcT> using V = vector<T>;
-using vi = V<int>;
-using vl = V<i64>;
-
+typedef uint64_t u64;
 #define sz(x) int((x).size())
 #define bg(x) begin(x)
 #define all(x) bg(x), end(x)
-#define bk back()
 const int base = 1e9, base_digits = 9;
 
 struct bigint {
-    vi z;
+    vector<int> z;
     int sign;
 
     bigint() : sign(1) {}
@@ -34,33 +29,40 @@ struct bigint {
         return *this;
     }
 
-    bigint(const string &s) { read(s); }
+    bigint(const string &s) {
+        read(s);
+    }
 
     bigint &operator+=(const bigint &other) {
-        //dbg("ADDING",*this,other,sign,other.sign);
+        const u64 n = other.z.size();
         if (sign == other.sign) {
-            for (int i = 0, carry = 0; i < sz(other.z) || carry; ++i) {
-                if (i == sz(z)) z.push_back(0);
-                z[i] += carry + (i < sz(other.z) ? other.z[i] : 0);
+            for (u64 i = 0, carry = 0; i < n || carry; ++i) {
+                if (i == z.size()) {
+                    z.push_back(0);
+                }
+                z[i] += carry + (i < n ? other.z[i] : 0);
                 carry = z[i] >= base;
                 if (carry) z[i] -= base;
             }
-        } else if (other != 0) *this -= -other;
+        } else if (other != 0) {
+            *this -= -other;
+        }
         return *this;
     }
 
     friend bigint operator+(bigint a, const bigint &b) { return a += b; }
 
     bigint &operator-=(const bigint &other) {
+        const int n = other.z.size();
         if (sign == other.sign) {
             if ((sign == 1 && *this >= other) || (sign == -1 && *this <= other)) {
-                for (int i = 0, carry = 0; i < sz(other.z) || carry; ++i) {
-                    z[i] -= carry + (i < sz(other.z) ? other.z[i] : 0);
+                for (int i = 0, carry = 0; i < n || carry; ++i) {
+                    z[i] -= carry + (i < n ? other.z[i] : 0);
                     carry = z[i] < 0;
                     if (carry) z[i] += base;
                 }
                 trim();
-            } else { // result wii64 change sign
+            } else {
                 *this = other - *this;
                 this->sign = -this->sign;
             }
@@ -71,9 +73,13 @@ struct bigint {
     friend bigint operator-(bigint a, const bigint &b) { return a -= b; }
 
     bigint &operator*=(int v) {
-        if (v < 0) sign = -sign, v = -v;
-        for (int i = 0, carry = 0; i < sz(z) || carry; ++i) {
-            if (i == sz(z)) z.push_back(0);
+        if (v < 0) {
+            sign = -sign, v = -v;
+        }
+        for (u64 i = 0, carry = 0; i < z.size() || carry; ++i) {
+            if (i == z.size()) {
+                z.push_back(0);
+            }
             i64 cur = (i64) z[i] * v + carry;
             carry = cur / base;
             z[i] = cur % base;
@@ -85,15 +91,15 @@ struct bigint {
     bigint operator*(int v) const { return bigint(*this) *= v; }
 
     friend pair<bigint, bigint> divmod(const bigint &a1, const bigint &b1) {
-        int norm = base / (b1.z.bk + 1);
-        bigint a = a1.abs() * norm, b = b1.abs() * norm, q, r; // make last element of b big
+        int norm = base / (b1.z.back() + 1);
+        bigint a = a1.abs() * norm, b = b1.abs() * norm, q, r;
         q.z.resize(sz(a.z));
-        R0F(i, sz(a.z)) {
+        for (u64 i = a.z.size() - 1; i >= 0; --i) {
             r *= base;
             r += a.z[i];
-            int s1 = sz(b.z) < sz(r.z) ? r.z[sz(b.z)] : 0;
+            int s1 = (b.z.size() < r.z.size() ? r.z[b.z.size()] : 0);
             int s2 = sz(b.z) - 1 < sz(r.z) ? r.z[sz(b.z) - 1] : 0;
-            int d = ((i64) s1 * base + s2) / b.z.bk; // best approximation
+            int d = ((i64) s1 * base + s2) / b.z.back();
             r -= b * d;
             while (r < 0) r += b, --d;
             q.z[i] = d;
@@ -105,9 +111,11 @@ struct bigint {
         return {q, r / norm};
     }
 
-    friend bigint sqrt(const bigint &a1) {
+    [[maybe_unused]] friend bigint sqrt(const bigint &a1) {
         bigint a = a1;
-        while (!sz(a.z) || sz(a.z) & 1) a.z.push_back(0);
+        while (!sz(a.z) || sz(a.z) & 1) {
+            a.z.push_back(0);
+        }
         int n = sz(a.z), firstDigit = ::sqrt((long double) a.z[n - 1] * base + a.z[n - 2]);
         int norm = base / (firstDigit + 1);
         a *= norm;
@@ -118,13 +126,14 @@ struct bigint {
         int q = firstDigit;
         bigint res;
         R0F(j, n / 2) {
-            for (;; --q) {
+            while (1) {
                 bigint r1 = (r - (res * 2 * base + q) * q) * base * base +
                             (j > 0 ? (i64) a.z[2 * j - 1] * base + a.z[2 * j - 2] : 0);
                 if (r1 >= 0) {
                     r = r1;
                     break;
                 }
+                --q;
             }
             res *= base;
             res += q;
@@ -159,7 +168,9 @@ struct bigint {
     int operator%(int v) const {
         if (v < 0) v = -v;
         int m = 0;
-        R0F(i, sz(z)) m = (z[i] + m * (i64) base) % v;
+        for (u64 i = z.size() - 1; i >= 0; --i) {
+            m = (z[i] + m * (i64) base) % v;
+        }
         return m * sign;
     }
 
@@ -171,7 +182,7 @@ struct bigint {
         if (sign != v.sign) return sign < v.sign;
         if (sz(z) != sz(v.z)) return sz(z) * sign < sz(v.z) * v.sign;
         R0F(i, sz(z)) if (z[i] != v.z[i]) return z[i] * sign < v.z[i] * sign;
-        return 0; // equal
+        return 0;
     }
 
     bool operator>(const bigint &v) const { return v < *this; }
@@ -185,11 +196,17 @@ struct bigint {
     bool operator!=(const bigint &v) const { return *this < v || v < *this; }
 
     void trim() {
-        while (sz(z) && z.bk == 0) z.pop_back();
-        if (!sz(z)) sign = 1; // don't output -0
+        while (z.size() != 0 && z.back() == 0) {
+            z.pop_back();
+        }
+        if (z.empty()) {
+            sign = 1;
+        }
     }
 
-    bool isZero() const { return !sz(z); }
+    bool isZero() const {
+        return z.empty();
+    }
 
     friend bigint operator-(bigint v) {
         if (sz(v.z)) v.sign = -v.sign;
@@ -198,7 +215,7 @@ struct bigint {
 
     bigint abs() const { return sign == 1 ? *this : -*this; }
 
-    i64 to_int64() const {
+    [[maybe_unused]] i64 to_int64() const {
         i64 res = 0;
         R0F(i, sz(z)) res = res * base + z[i];
         return res * sign;
@@ -208,7 +225,7 @@ struct bigint {
         return b.isZero() ? a : gcd(b, a % b);
     }
 
-    friend bigint lcm(const bigint &a, const bigint &b) {
+    us friend bigint lcm(const bigint &a, const bigint &b) {
         return a / gcd(a, b) * b;
     }
 
@@ -238,18 +255,18 @@ struct bigint {
 
     friend ostream &operator<<(ostream &os, const bigint &v) {
         if (v.sign == -1) os << '-';
-        os << (!sz(v.z) ? 0 : v.z.bk);
+        os << (!sz(v.z) ? 0 : v.z.back());
         R0F(i, sz(v.z) - 1) os << setw(base_digits) << setfill('0') << v.z[i];
         return os;
     }
 
-    static vi convert_base(const vi &a, int old_digits, int new_digits) {
-        vl p(max(old_digits, new_digits) + 1); // blocks of 10^{old} -> 10^{new}
+    static vector<int> convert_base(const vector<int> &a, int old_digits, int new_digits) {
+        vector<i64> p(max(old_digits, new_digits) + 1); // blocks of 10^{old} -> 10^{new}
         p[0] = 1;
         for (int i = 1, end = sz(p); i < end; ++i) {
             p[i] = p[i - 1] * 10;
         }
-        vi res;
+        vector<int> res;
         i64 cur = 0;
         int cur_digits = 0;
         for (int v: a) {
@@ -262,13 +279,13 @@ struct bigint {
             }
         }
         res.push_back(cur);
-        while (sz(res) && res.bk == 0) res.pop_back();
+        while (sz(res) && res.back() == 0) res.pop_back();
         return res;
     }
 
-    static vl karatMul(const vl &a, const vl &b) { // karatsuba
+    static vector<i64> karatMul(const vector<i64> &a, const vector<i64> &b) { // karatsuba
         int n = sz(a);
-        vl res(2 * n);
+        vector<i64> res(2 * n);
         if (n <= 32) {
             for (int i = 0; i < n; ++i) {
                 for (int j = 0; j < n; ++j) {
@@ -278,13 +295,13 @@ struct bigint {
             return res;
         }
         int k = n / 2;
-        vl a1(begin(a), begin(a) + k), a2(k + all(a));
-        vl b1(begin(b), begin(b) + k), b2(k + all(b));
-        vl a1b1 = karatMul(a1, b1), a2b2 = karatMul(a2, b2);
+        vector<i64> a1(begin(a), begin(a) + k), a2(k + all(a));
+        vector<i64> b1(begin(b), begin(b) + k), b2(k + all(b));
+        vector<i64> a1b1 = karatMul(a1, b1), a2b2 = karatMul(a2, b2);
         for (int i = 0; i < k; ++i) {
             a2[i] += a1[i], b2[i] += b1[i];
         }
-        vl r = karatMul(a2, b2);
+        vector<i64> r = karatMul(a2, b2);
         for (int i = 0, end = sz(a1b1); i < end; ++i) {
             r[i] -= a1b1[i];
         }
@@ -307,16 +324,22 @@ struct bigint {
     bigint operator*(const bigint &v) const {
         if (min(sz(z), sz(v.z)) < 150) return mul_simple(v);
         bigint res;
-        res.sign = sign * v.sign; // should work as long as # of digits isn't too large (> i64ONG_MAX/10^{12})
-        vi a6 = convert_base(this->z, base_digits, 6); // blocks of 10^6 instead of 10^9
-        vi b6 = convert_base(v.z, base_digits, 6);
-        vl a(all(a6)), b(all(b6));
-        while (sz(a) < sz(b)) a.push_back(0);
-        while (sz(b) < sz(a)) b.push_back(0);
-        while (sz(a) & (sz(a) - 1)) a.push_back(0), b.push_back(0); // make size power of 2
-        vl c = karatMul(a, b);
+        res.sign = sign * v.sign;
+        vector<int> a6 = convert_base(this->z, base_digits, 6);
+        vector<int> b6 = convert_base(v.z, base_digits, 6);
+        vector<i64> a(all(a6)), b(all(b6));
+        while (a.size() < b.size()) {
+            a.push_back(0);
+        }
+        while (b.size() < a.size()) {
+            b.push_back(0);
+        }
+        while (a.size() & (a.size() - 1)) {
+            a.push_back(0), b.push_back(0);
+        }
+        const vector<i64> c = karatMul(a, b);
         i64 cur = 0;
-        for (int i = 0, end = sz(c); i < end; ++i) {
+        for (u64 i = 0, end = c.size(); i < end; ++i) {
             cur += c[i];
             res.z.push_back(cur % 1000000);
             cur /= 1000000;
@@ -344,7 +367,7 @@ struct bigint {
         return res;
     }
 
-    friend string ts(const bigint &v) {
+    us friend string ts(const bigint &v) {
         stringstream ss;
         ss << v;
         string s;
@@ -359,4 +382,13 @@ bigint random_bigint(int n) {
         s += rand() % 10 + '0';
     }
     return bigint(s);
+}
+
+int main() {
+    vector<int> v = {1, 2, 3};
+    bool x = !sz(v);
+    bool y = v.empty();
+    if (x == y) {
+        cout << "equal";
+    }
 }
