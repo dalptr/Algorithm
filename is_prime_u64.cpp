@@ -1,14 +1,19 @@
 typedef uint64_t u64;
+typedef __uint128_t u128;
 const u64 candidates[] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
 
-u64 pow_64(__uint128_t base, u64 exp, u64 modulo) {
-    u64 res = 1;
-    for (; exp; exp >>= 1, base = base * base % modulo) {
-        if (exp & 1) {
-            res = __uint128_t(res) * base % modulo;
+u64 power_modulo(u128 base, u64 exponent, u64 modulo) {
+    u128 result = 1;
+    while (exponent != 0) {
+        if (exponent & 1) {
+            result *= base;
+            result %= modulo;
         }
+        exponent >>= 1;
+        base *= base;
+        base %= modulo;
     }
-    return res;
+    return result;
 }
 
 bool is_prime(u64 n) {
@@ -22,9 +27,9 @@ bool is_prime(u64 n) {
         r >>= 1, ++e;
     }
     for (u64 candidate: candidates) {
-        x = pow_64(candidate, r, n);
+        x = power_modulo(candidate, r, n);
         for (int t = 0; t < e && x > 1; ++t) {
-            y = (__uint128_t) x * x % n;
+            y = (u128) x * x % n;
             if (y == 1 && x != n - 1) return false;
             x = y;
         }
