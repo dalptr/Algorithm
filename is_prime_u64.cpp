@@ -13,8 +13,8 @@ u64 pow_64(__uint128_t base, u64 exp, u64 modulo) {
 
 bool is_prime(u64 n) {
     if (n == 1) return false;
-    for (u64 num: candidates) {
-        if (n % num == 0) return n == num;
+    for (u64 candidate: candidates) {
+        if (n % candidate == 0) return n == candidate;
     }
     u64 r = n - 1, x, y;
     int e = 0;
