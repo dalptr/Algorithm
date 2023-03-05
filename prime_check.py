@@ -20,8 +20,8 @@ def isPrime(n: int) -> bool:
         e = e + 1
 
     for p in jp:
-        x = pow(p, r, n)
-        t = 0
+        x: int = pow(p, r, n)
+        t: int = 0
         while t < e and x > 1:
             y: int = x * x % n
             if y == 1 and x != n - 1:
@@ -32,3 +32,6 @@ def isPrime(n: int) -> bool:
             return False
 
     return True
+
+
+print(isPrime(98420420174613424687))
