@@ -1,7 +1,5 @@
-import math
-
-maxN: int = math.pow(10, 24.52).__int__()
-jp: list[int] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41]
+maxN: int = int(1e24)
+tests: list[int] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41]
 
 
 def isPrime(n: int) -> bool:
@@ -9,7 +7,7 @@ def isPrime(n: int) -> bool:
         return False
     assert n < maxN
 
-    for p in jp:
+    for p in tests:
         if n % p == 0:
             return n == p
 
@@ -19,7 +17,7 @@ def isPrime(n: int) -> bool:
         r >>= 1
         e = e + 1
 
-    for p in jp:
+    for p in tests:
         x: int = pow(p, r, n)
         t: int = 0
         while t < e and x > 1:
@@ -33,5 +31,3 @@ def isPrime(n: int) -> bool:
 
     return True
 
-
-print(isPrime(98420420174613424687))
