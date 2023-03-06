@@ -4,13 +4,7 @@ using namespace std;
 using i64 = long long int;
 using u64 = unsigned long long int;
 using u32 = unsigned int;
-const int base = 1e9, base_digits = 9;
-#define sz(x) (x).size()
-#define all(x) begin(x), end(x)
-#define FOR(i, a, b) for (int i = (a); i < (b); ++i)
-#define F0R(i, a) FOR(i,0,a)
-#define ROF(i, a, b) for (int i = (b)-1; i >= (a); --i)
-#define R0F(i, a) ROF(i,0,a)
+constexpr int base = 1e9, base_digits = 9;
 constexpr int negative = -1;
 constexpr int positive = 1;
 
@@ -18,6 +12,8 @@ struct INTEGER {
 #ifndef DEVELOPMENT_MODE
 #define assert(...)
 #endif
+#define all(x) begin(x), end(x)
+#define sz(x) (x).size()
     vector<int> z;
     int sign;
 
@@ -38,7 +34,7 @@ struct INTEGER {
         return *this;
     }
 
-    INTEGER(const string &s) { // verify
+    INTEGER(const string &s) {
         read(s);
     }
 
@@ -173,7 +169,7 @@ struct INTEGER {
             return sign < v.sign;
         }
         if (z.size() != v.z.size()) {
-            return sz(z) * sign < sz(v.z) * v.sign;
+            return int(z.size()) * sign < int(v.z.size()) * v.sign;
         }
         for (int i = z.size() - 1; i >= 0; --i) {
             if (z[i] != v.z[i]) return z[i] * sign < v.z[i] * sign;
@@ -288,7 +284,9 @@ struct INTEGER {
             }
         }
         res.push_back(cur);
-        while (sz(res) && res.back() == 0) res.pop_back();
+        while (!res.empty() && res.back() == 0) {
+            res.pop_back();
+        }
         return res;
     }
 
@@ -317,23 +315,25 @@ struct INTEGER {
         for (u64 i = 0; i < a2b2.size(); ++i) {
             r[i] -= a2b2[i];
         }
-        F0R(i, sz(r)) {
+        for (int i = (0); i < ((r).size()); ++i) {
             res[i + k] += r[i];
         }
-        F0R(i, sz(a1b1)) {
+        for (int i = (0); i < ((a1b1).size()); ++i) {
             res[i] += a1b1[i];
         }
-        F0R(i, sz(a2b2)) {
+        for (int i = (0); i < ((a2b2).size()); ++i) {
             res[i + n] += a2b2[i];
         }
         return res;
     }
 
     INTEGER operator*(const INTEGER &v) const {
-        if (min(sz(z), sz(v.z)) < 150) return native_multiple(v);
+        if (min(z.size(), v.z.size()) < 150) {
+            return native_multiple(v);
+        }
         INTEGER res;
-        res.sign = sign * v.sign; // should work as long as # of digits isn't too large (> i64ONG_MAX/10^{12})
-        vector<int> a6 = convert_base(this->z, base_digits, 6); // blocks of 10^6 instead of 10^9
+        res.sign = sign * v.sign;
+        vector<int> a6 = convert_base(this->z, base_digits, 6);
         vector<int> b6 = convert_base(v.z, base_digits, 6);
         vector<long long> a(all(a6)), b(all(b6));
         while (sz(a) < sz(b)) a.push_back(0);
@@ -354,11 +354,12 @@ struct INTEGER {
     INTEGER native_multiple(const INTEGER &v) const {
         INTEGER res;
         res.sign = sign * v.sign;
-        res.z.resize(sz(z) + sz(v.z));
-        F0R(i, sz(z)) if (z[i]) {
+        res.z.resize(z.size() + v.z.size());
+        for (u64 i = 0; i < z.size(); ++i)
+            if (z[i]) {
                 i64 cur = 0;
-                for (int j = 0; j < sz(v.z) || cur; ++j) {
-                    cur += res.z[i + j] + (i64) z[i] * (j < sz(v.z) ? v.z[j] : 0);
+                for (u64 j = 0; j < v.z.size() || cur; ++j) {
+                    cur += res.z[i + j] + (i64) z[i] * (j < v.z.size() ? v.z[j] : 0);
                     res.z[i + j] = cur % base;
                     cur /= base;
                 }
@@ -367,7 +368,7 @@ struct INTEGER {
         return res;
     }
 
-    INTEGER random(u32 digits) {
+    [[maybe_unused]] INTEGER random(u32 digits) {
         string s;
         for (u32 i = 0; i < digits; ++i) {
             s += rand() % 10 + '0';
@@ -375,7 +376,7 @@ struct INTEGER {
         return INTEGER(s);
     }
 
-    friend string to_string(const INTEGER &v) {
+    [[maybe_unused]] friend string to_string(const INTEGER &v) {
         stringstream ss;
         ss << v;
         string s;
