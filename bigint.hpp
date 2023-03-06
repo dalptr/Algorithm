@@ -97,15 +97,15 @@ struct bigint {
 
     bigint operator*(int v) const { return bigint(*this) *= v; }
 
-    friend pair<bigint, bigint> divmod(const bigint &a1, const bigint &b1) {
+    friend pair<bigint, bigint> div_mod(const bigint &a1, const bigint &b1) {
         int norm = base / (b1.z.back() + 1);
         bigint a = a1.abs() * norm, b = b1.abs() * norm, q, r;
-        q.z.resize(sz(a.z));
-        for (u64 i = a.z.size() - 1; i >= 0; --i) {
+        q.z.resize(a.z.size());
+        for (int i = a.z.size() - 1; i >= 0; --i) {
             r *= base;
             r += a.z[i];
             int s1 = (b.z.size() < r.z.size() ? r.z[b.z.size()] : 0);
-            int s2 = sz(b.z) - 1 < sz(r.z) ? r.z[sz(b.z) - 1] : 0;
+            int s2 = (b.z.size() - 1 < r.z.size() ? r.z[b.z.size() - 1] : 0);
             int d = ((i64) s1 * base + s2) / b.z.back();
             r -= b * d;
             while (r < 0) r += b, --d;
@@ -120,7 +120,7 @@ struct bigint {
 
     [[maybe_unused]] friend bigint sqrt(const bigint &a1) {
         bigint a = a1;
-        while (!sz(a.z) || sz(a.z) & 1) {
+        while (a.z.empty() || a.z.size() & 1) {
             a.z.push_back(0);
         }
         int n = sz(a.z), firstDigit = ::sqrt((long double) a.z[n - 1] * base + a.z[n - 2]);
@@ -155,13 +155,13 @@ struct bigint {
         return res / norm;
     }
 
-    bigint operator/(const bigint &v) const { return divmod(*this, v).first; }
+    bigint operator/(const bigint &v) const { return div_mod(*this, v).first; }
 
-    bigint operator%(const bigint &v) const { return divmod(*this, v).second; }
+    bigint operator%(const bigint &v) const { return div_mod(*this, v).second; }
 
     bigint &operator/=(int v) {
         if (v < 0) sign = -sign, v = -v;
-        for (int i = sz(z) - 1, rem = 0; i >= 0; --i) {
+        for (int i = z.size() - 1, rem = 0; i >= 0; --i) {
             i64 cur = z[i] + rem * (i64) base;
             z[i] = cur / v;
             rem = cur % v;
@@ -219,12 +219,12 @@ struct bigint {
         }
     }
 
-    bool isZero() const {
+    bool is_zero() const {
         return z.empty();
     }
 
     friend bigint operator-(bigint v) {
-        if (sz(v.z)) v.sign = -v.sign;
+        if (!v.z.empty()) v.sign = -v.sign;
         return v;
     }
 
@@ -239,7 +239,7 @@ struct bigint {
     }
 
     friend bigint gcd(const bigint &a, const bigint &b) {
-        return b.isZero() ? a : gcd(b, a % b);
+        return b.is_zero() ? a : gcd(b, a % b);
     }
 
     [[maybe_unused]] friend bigint lcm(const bigint &a, const bigint &b) {
@@ -273,7 +273,7 @@ struct bigint {
 
     friend ostream &operator<<(ostream &os, const bigint &v) {
         if (v.sign == -1) os << '-';
-        os << (!sz(v.z) ? 0 : v.z.back());
+        os << (v.z.empty() ? 0 : v.z.back());
         for (int i = v.z.size() - 1; i >= 0; --i) {
             os << setw(base_digits) << setfill('0') << v.z[i];
         }
@@ -305,7 +305,7 @@ struct bigint {
         return res;
     }
 
-    static vector<i64> karatMul(const vector<i64> &a, const vector<i64> &b) { // karatsuba
+    static vector<i64> karat_mul(const vector<i64> &a, const vector<i64> &b) { // karatsuba
         const int n = a.size();
         vector<i64> res(2 * n);
         if (n <= 32) {
@@ -317,13 +317,13 @@ struct bigint {
             return res;
         }
         int k = n / 2;
-        vector<i64> a1(begin(a), begin(a) + k), a2(k + all(a));
-        vector<i64> b1(begin(b), begin(b) + k), b2(k + all(b));
-        vector<i64> a1b1 = karatMul(a1, b1), a2b2 = karatMul(a2, b2);
+        vector<i64> a1(begin(a), begin(a) + k), a2(k + begin(a), end(a));
+        vector<i64> b1(begin(b), begin(b) + k), b2(k + begin(b), end(b));
+        vector<i64> a1b1 = karat_mul(a1, b1), a2b2 = karat_mul(a2, b2);
         for (int i = 0; i < k; ++i) {
             a2[i] += a1[i], b2[i] += b1[i];
         }
-        vector<i64> r = karatMul(a2, b2);
+        vector<i64> r = karat_mul(a2, b2);
         for (int i = 0, end = sz(a1b1); i < end; ++i) {
             r[i] -= a1b1[i];
         }
@@ -359,7 +359,7 @@ struct bigint {
         while (a.size() & (a.size() - 1)) {
             a.push_back(0), b.push_back(0);
         }
-        const vector<i64> c = karatMul(a, b);
+        const vector<i64> c = karat_mul(a, b);
         i64 cur = 0;
         for (u64 i = 0, end = c.size(); i < end; ++i) {
             cur += c[i];
@@ -374,8 +374,8 @@ struct bigint {
     bigint mul_simple(const bigint &v) const {
         bigint res;
         res.sign = sign * v.sign;
-        res.z.resize(sz(z) + sz(v.z));
-        for (int i = 0, end = sz(z); i < end; ++i) {
+        res.z.resize(z.size() + v.z.size());
+        for (u64 i = 0, end = z.size(); i < end; ++i) {
             if (z[i]) {
                 i64 cur = 0;
                 for (int j = 0; j < sz(v.z) || cur; ++j) {
@@ -404,9 +404,9 @@ struct bigint {
     }
 };
 
-bigint random_bigint(int n) {
+bigint random_bigint(uint32_t digits) {
     string s;
-    for (int i = 0; i < n; ++i) {
+    for (uint32_t i = 0; i < digits; ++i) {
         s += rand() % 10 + '0';
     }
     return bigint(s);
