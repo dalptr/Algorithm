@@ -23,7 +23,7 @@ bool is_prime(u64 n) {
     }
     u64 r = n - 1, x, y;
     int e = 0;
-    while (~r & 1) {
+    while (r % 2 == 0) {
         r >>= 1, ++e;
     }
     for (u64 candidate: candidates) {
