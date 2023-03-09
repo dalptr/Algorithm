@@ -1,22 +1,25 @@
 #include<bits/stdc++.h>
 
 using namespace std;
-using i64 = long long int;
-using u64 = unsigned long long int;
-using u32 = unsigned int;
+
 constexpr int base = 1e9, base_digits = 9;
 constexpr int negative = -1;
 constexpr int positive = 1;
-
+constexpr int prime_candidates[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41};
 struct INTEGER {
 #ifndef DEVELOPMENT_MODE
 #define assert(...)
 #endif
 #define all(x) begin(x), end(x)
 #define sz(x) (x).size()
+    using i64 = long long int;
+    using u64 = unsigned long long int;
+    using u32 = unsigned int;
+private:
+
+public:
     vector<int> z;
     int sign;
-
     INTEGER() : sign(1) {}
 
     INTEGER(i64 v) {
@@ -227,7 +230,7 @@ struct INTEGER {
         return b.is_zero() ? a : gcd(b, a % b);
     }
 
-    friend INTEGER lcm(const INTEGER &a, const INTEGER &b) {
+    [[maybe_unused]] friend INTEGER lcm(const INTEGER &a, const INTEGER &b) {
         return a / gcd(a, b) * b;
     }
 
@@ -383,5 +386,44 @@ struct INTEGER {
         ss >> s;
         return s;
     }
-};
 
+    INTEGER power_modulo(int _base, INTEGER &exponent, INTEGER &modulo) {
+        INTEGER a = _base;
+        INTEGER result = 1;
+        while (exponent != 0) {
+            if (exponent % 2 == 1) {
+                result *= a;
+                result = result % modulo;
+            }
+            exponent = exponent / 2;
+            a *= a;
+            a = a % modulo;
+        }
+        return result;
+    }
+
+    [[maybe_unused]] bool is_prime() {
+        if (*this < 2) return false;
+        for (int prime: prime_candidates) {
+            if (*this % prime == 0) return (*this == prime);
+        }
+        INTEGER r = *this - 1;
+        int e = 0;
+        while (r % 2 == 0) {
+            r /= 2;
+            ++e;
+        }
+        for (int prime: prime_candidates) {
+            INTEGER x = power_modulo(prime, r, *this);
+            cout << x << endl;
+            for (int t = 0; t < e && x > 1; ++t) {
+                INTEGER y = x * x;
+                y = y % *this;
+                if (y == 1 && x != *this - 1) return false;
+                x = y;
+            }
+            if (x != 1) return false;
+        }
+        return true;
+    }
+};
