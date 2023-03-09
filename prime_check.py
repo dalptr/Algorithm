@@ -13,7 +13,7 @@ def isPrime(n: int) -> bool:
 
     r: int = n - 1
     e: int = 0
-    while ~r & 1:
+    while not r & 1:
         r >>= 1
         e = e + 1
 
