@@ -18,7 +18,7 @@ def isPrime(n: int) -> bool:
     for prime in candidates:
         x: int = pow(prime, r, n)
         for t in range(e):
-            if x <= 1:
+            if x < 2:
                 break
             y: int = x * x % n
             if y == 1 and x != n - 1:
@@ -28,3 +28,6 @@ def isPrime(n: int) -> bool:
             return False
 
     return True
+
+
+print(isPrime(8420771934573887606696494338163523216238596895319205584911579075553001))
