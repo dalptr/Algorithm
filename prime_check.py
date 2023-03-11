@@ -13,7 +13,7 @@ def isPrime(n: int) -> bool:
     e: int = 0
     while not r & 1:
         r >>= 1
-        e = e + 1
+        e += 1
 
     for prime in candidates:
         x: int = pow(prime, r, n)
@@ -30,4 +30,3 @@ def isPrime(n: int) -> bool:
     return True
 
 
-print(isPrime(8420771934573887606696494338163523216238596895319205584911579075553001))
