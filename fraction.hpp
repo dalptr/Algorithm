@@ -2,22 +2,12 @@
 #include <cassert>
 #include <iostream>
 
-bool CHECK_OVERFLOW64 = true;
-
 struct fraction {
-    using ld = long double;
     using i64 = int64_t;
-    using u64 = uint64_t;
 
     static int cross_sign(const fraction &a, const fraction &b) {
-        if (CHECK_OVERFLOW64) {
-            ld double_value = (ld) a.numerator * b.denominator - (ld) b.numerator * a.denominator;
-            if (abs(double_value) > 1e18)
-                return double_value > 0 ? +1 : -1;
-        }
-
-        u64 x = (u64) a.numerator * b.denominator - (u64) b.numerator * a.denominator;
-        return int(((i64) x > 0) - ((i64) x < 0));
+        __uint128_t x = ((__uint128_t) a.numerator * b.denominator) - ((__uint128_t) b.numerator * a.denominator);
+        return int(((__int128_t) x > 0) - ((__int128_t) x < 0));
     }
 
     i64 numerator, denominator;
