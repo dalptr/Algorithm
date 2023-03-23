@@ -16,8 +16,8 @@ struct fraction {
                 return double_value > 0 ? +1 : -1;
         }
 
-        u64 uint64_value = (u64) a.numerator * b.denominator - (u64) b.numerator * a.denominator;
-        return int(((i64) uint64_value > 0) - ((i64) uint64_value < 0));
+        u64 x = (u64) a.numerator * b.denominator - (u64) b.numerator * a.denominator;
+        return int(((i64) x > 0) - ((i64) x < 0));
     }
 
     i64 numerator, denominator;
