@@ -6,6 +6,8 @@ bool CHECK_OVERFLOW64 = true;
 
 struct fraction {
     using ld = long double;
+    using i64 = int64_t;
+    using u64 = uint64_t;
 
     static int cross_sign(const fraction &a, const fraction &b) {
         if (CHECK_OVERFLOW64) {
@@ -14,31 +16,26 @@ struct fraction {
                 return double_value > 0 ? +1 : -1;
         }
 
-        uint64_t uint64_value = (uint64_t) a.numerator * b.denominator - (uint64_t) b.numerator * a.denominator;
-        auto actual = int64_t(uint64_value);
-        return (actual > 0) - (actual < 0);
+        u64 uint64_value = (u64) a.numerator * b.denominator - (u64) b.numerator * a.denominator;
+        return int(((i64) uint64_value > 0) - ((i64) uint64_value < 0));
     }
 
-    int64_t numerator, denominator;
+    i64 numerator, denominator;
 
     template<class A, class B>
     fraction(A numerator, B denominator) {
         assert(denominator != 0);
-        this->numerator = int64_t(numerator);
-        this->denominator = int64_t(denominator);
-        swap_sign();
+        this->numerator = i64(numerator);
+        this->denominator = i64(denominator);
+        if (denominator < 0) {
+            this->numerator = -this->numerator;
+            this->denominator = -this->denominator;
+        }
         reduce();
     }
 
-    void swap_sign() {
-        if (denominator < 0) {
-            numerator = -numerator;
-            denominator = -denominator;
-        }
-    }
-
     void reduce() {
-        int64_t g = std::__gcd(abs(numerator), denominator);
+        i64 g = std::__gcd(abs(numerator), denominator);
         numerator /= g;
         denominator /= g;
     }
