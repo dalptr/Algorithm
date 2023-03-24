@@ -71,7 +71,7 @@ class PollardRho:
         else:
             self.ans[val] = 1
 
-    def native_factorize(self, num: int):
+    def native_factorize(self, num: int) -> None:
         i: int = 2
         while i * i <= num:
             while num % i == 0:
@@ -82,7 +82,7 @@ class PollardRho:
         if num > 1:
             self.increase(num)
 
-    def factorize(self, num: int):
+    def factorize(self, num: int) -> None:
         if num <= 1000000:
             self.native_factorize(num)
             return
