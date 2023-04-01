@@ -1,13 +1,13 @@
-#include <algorithm>
-#include <cassert>
-#include <iostream>
+#include <bits/stdc++.h>
 
 struct fraction {
     using i64 = int64_t;
+    using i128 = __int128_t;
+    using u128 = __uint128_t;
 
     static int cross_sign(const fraction &a, const fraction &b) {
-        __uint128_t x = ((__uint128_t) a.numerator * b.denominator) - ((__uint128_t) b.numerator * a.denominator);
-        return int(((__int128_t) x > 0) - ((__int128_t) x < 0));
+        u128 x = ((__uint128_t) a.numerator * b.denominator) - ((u128) b.numerator * a.denominator);
+        return int(((i128) x > 0) - ((i128) x < 0));
     }
 
     i64 numerator, denominator;
@@ -25,13 +25,13 @@ struct fraction {
     }
 
     void reduce() {
-        i64 g = std::__gcd(abs(numerator), denominator);
-        numerator /= g;
-        denominator /= g;
+        i64 gcd = std::__gcd(abs(numerator), denominator);
+        numerator /= gcd;
+        denominator /= gcd;
     }
 
     [[maybe_unused]] [[nodiscard]] bool is_integer() const {
-        return (denominator != 0 && numerator % denominator == 0);
+        return (numerator % denominator == 0);
     }
 
     friend fraction operator+(const fraction &a, const fraction &b) {
