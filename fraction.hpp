@@ -2,12 +2,11 @@
 
 struct fraction {
     using i64 = int64_t;
-    using i128 = __int128_t;
-    using u128 = __uint128_t;
 
-    static int cross_sign(const fraction &a, const fraction &b) {
-        u128 x = ((__uint128_t) a.numerator * b.denominator) - ((u128) b.numerator * a.denominator);
-        return int(((i128) x > 0) - ((i128) x < 0));
+    static int compare(const fraction &a, const fraction &b){
+        __int128_t x = (__int128_t)a.numerator * b.denominator;
+        __int128_t y = (__int128_t)b.numerator * a.denominator;
+        return (int)(x - y);
     }
 
     i64 numerator, denominator;
@@ -72,17 +71,17 @@ struct fraction {
         return {-numerator, denominator};
     }
 
-    bool operator==(const fraction &other) const { return cross_sign(*this, other) == 0; }
+    bool operator==(const fraction &other) const { return compare(*this, other) == 0; }
 
-    bool operator!=(const fraction &other) const { return cross_sign(*this, other) != 0; }
+    bool operator!=(const fraction &other) const { return compare(*this, other) != 0; }
 
-    bool operator<(const fraction &other) const { return cross_sign(*this, other) < 0; }
+    bool operator<(const fraction &other) const { return compare(*this, other) < 0; }
 
-    bool operator>(const fraction &other) const { return cross_sign(*this, other) > 0; }
+    bool operator>(const fraction &other) const { return compare(*this, other) > 0; }
 
-    bool operator<=(const fraction &other) const { return cross_sign(*this, other) <= 0; }
+    bool operator<=(const fraction &other) const { return compare(*this, other) <= 0; }
 
-    bool operator>=(const fraction &other) const { return cross_sign(*this, other) >= 0; }
+    bool operator>=(const fraction &other) const { return compare(*this, other) >= 0; }
 
     [[maybe_unused]] [[nodiscard]] double to_double() const {
         return (double) numerator / (double) denominator;
