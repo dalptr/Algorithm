@@ -3,16 +3,16 @@
 struct fraction {
     using i64 = int64_t;
 
-    static int compare(const fraction &a, const fraction &b){
-        __int128_t x = (__int128_t)a.numerator * b.denominator;
-        __int128_t y = (__int128_t)b.numerator * a.denominator;
-        return (int)(x - y);
+    static int compare(const fraction &a, const fraction &b) {
+        __int128_t x = (__int128_t) a.numerator * b.denominator;
+        __int128_t y = (__int128_t) b.numerator * a.denominator;
+        return (int) (x - y);
     }
 
     i64 numerator, denominator;
 
-    template<class A, class B>
-    fraction(A numerator, B denominator) {
+
+    explicit fraction(i64 numerator, i64 denominator) {
         assert(denominator != 0);
         this->numerator = i64(numerator);
         this->denominator = i64(denominator);
@@ -29,24 +29,24 @@ struct fraction {
         denominator /= gcd;
     }
 
-    [[maybe_unused]] [[nodiscard]] bool is_integer() const {
+    [[maybe_unused]]  bool is_integer() const {
         return (numerator % denominator == 0);
     }
 
     friend fraction operator+(const fraction &a, const fraction &b) {
-        return {a.numerator * b.denominator + b.numerator * a.denominator, a.denominator * b.denominator};
+        return fraction{a.numerator * b.denominator + b.numerator * a.denominator, a.denominator * b.denominator};
     }
 
     friend fraction operator-(const fraction &a, const fraction &b) {
-        return {a.numerator * b.denominator - b.numerator * a.denominator, a.denominator * b.denominator};
+        return fraction{a.numerator * b.denominator - b.numerator * a.denominator, a.denominator * b.denominator};
     }
 
     friend fraction operator*(const fraction &a, const fraction &b) {
-        return {a.numerator * b.numerator, a.denominator * b.denominator};
+        return fraction{a.numerator * b.numerator, a.denominator * b.denominator};
     }
 
     friend fraction operator/(const fraction &a, const fraction &b) {
-        return {a.numerator * b.denominator, a.denominator * b.numerator};
+        return fraction{a.numerator * b.denominator, a.denominator * b.numerator};
     }
 
     fraction &operator+=(const fraction &other) { return *this = *this + other; }
@@ -68,7 +68,7 @@ struct fraction {
     }
 
     fraction operator-() const {
-        return {-numerator, denominator};
+        return fraction{-numerator, denominator};
     }
 
     bool operator==(const fraction &other) const { return compare(*this, other) == 0; }
@@ -83,12 +83,12 @@ struct fraction {
 
     bool operator>=(const fraction &other) const { return compare(*this, other) >= 0; }
 
-    [[maybe_unused]] [[nodiscard]] double to_double() const {
+    [[maybe_unused]]  double to_double() const {
         return (double) numerator / (double) denominator;
     }
 
     friend fraction abs(const fraction &f) {
-        return {abs(f.numerator), f.denominator};
+        return fraction{abs(f.numerator), f.denominator};
     }
 
     friend std::ostream &operator<<(std::ostream &out, const fraction &frac) {
