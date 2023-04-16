@@ -10,12 +10,11 @@ struct fraction {
     }
 
     i64 numerator, denominator;
-
-
+    
     explicit fraction(i64 numerator, i64 denominator) {
         assert(denominator != 0);
-        this->numerator = i64(numerator);
-        this->denominator = i64(denominator);
+        this->numerator = numerator;
+        this->denominator = denominator;
         if (denominator < 0) {
             this->numerator = -this->numerator;
             this->denominator = -this->denominator;
