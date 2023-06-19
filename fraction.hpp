@@ -1,16 +1,17 @@
-#include <bits/stdc++.h>
-
+#include <iostream>
+#include <numeric>
+#include <cassert>
 struct fraction {
     using i64 = int64_t;
 
-    static int compare(const fraction &a, const fraction &b) {
-        __int128_t x = (__int128_t) a.numerator * b.denominator;
-        __int128_t y = (__int128_t) b.numerator * a.denominator;
-        return (int) (x - y);
+    static __int128_t compare(const fraction &a, const fraction &b) {
+        __int128_t x = (__int128_t)a.numerator * b.denominator;
+        __int128_t y = (__int128_t)b.numerator * a.denominator;
+        return x - y;
     }
 
     i64 numerator, denominator;
-    
+
     explicit fraction(i64 numerator, i64 denominator) {
         assert(denominator != 0);
         this->numerator = numerator;
@@ -23,12 +24,12 @@ struct fraction {
     }
 
     void reduce() {
-        i64 gcd = std::__gcd(abs(numerator), denominator);
+        i64 gcd = std::gcd(abs(numerator), denominator);
         numerator /= gcd;
         denominator /= gcd;
     }
 
-    [[maybe_unused]]  bool is_integer() const {
+    [[maybe_unused]] bool is_integer() const {
         return (numerator % denominator == 0);
     }
 
@@ -82,12 +83,12 @@ struct fraction {
 
     bool operator>=(const fraction &other) const { return compare(*this, other) >= 0; }
 
-    [[maybe_unused]]  double to_double() const {
-        return (double) numerator / (double) denominator;
+    [[maybe_unused]] double to_double() const {
+        return static_cast<double>(numerator) / static_cast<double>(denominator);
     }
 
     friend fraction abs(const fraction &f) {
-        return fraction{abs(f.numerator), f.denominator};
+        return fraction{std::abs(f.numerator), f.denominator};
     }
 
     friend std::ostream &operator<<(std::ostream &out, const fraction &frac) {
