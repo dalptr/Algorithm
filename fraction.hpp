@@ -78,7 +78,3 @@ struct fraction {
     }
 };
 
-int main() {
-    fraction a = fraction(3,9);
-    std::cout << a;
-}
