@@ -1,12 +1,13 @@
 #include <iostream>
 #include <numeric>
 #include <cassert>
+
 struct fraction {
     using i64 = int64_t;
 
     static __int128_t compare(const fraction &a, const fraction &b) {
-        __int128_t x = (__int128_t)a.numerator * b.denominator;
-        __int128_t y = (__int128_t)b.numerator * a.denominator;
+        __int128_t x = (__int128_t) a.numerator * b.denominator;
+        __int128_t y = (__int128_t) b.numerator * a.denominator;
         return x - y;
     }
 
@@ -16,18 +17,15 @@ struct fraction {
         assert(denominator != 0);
         this->numerator = numerator;
         this->denominator = denominator;
-        if (denominator < 0) {
+        if (this->denominator < 0) {
             this->numerator = -this->numerator;
             this->denominator = -this->denominator;
         }
-        reduce();
+        i64 _gcd = std::__gcd(std::abs(this->numerator), this->denominator);
+        this->numerator /= _gcd;
+        this->denominator /= _gcd;
     }
 
-    void reduce() {
-        i64 gcd = std::gcd(abs(numerator), denominator);
-        numerator /= gcd;
-        denominator /= gcd;
-    }
 
     [[maybe_unused]] bool is_integer() const {
         return (numerator % denominator == 0);
@@ -57,19 +55,7 @@ struct fraction {
 
     fraction &operator/=(const fraction &other) { return *this = *this / other; }
 
-    fraction &operator++() {
-        numerator += denominator;
-        return *this;
-    }
-
-    fraction &operator--() {
-        numerator -= denominator;
-        return *this;
-    }
-
-    fraction operator-() const {
-        return fraction{-numerator, denominator};
-    }
+    fraction operator-() const { return fraction{-numerator, denominator}; }
 
     bool operator==(const fraction &other) const { return compare(*this, other) == 0; }
 
@@ -83,15 +69,16 @@ struct fraction {
 
     bool operator>=(const fraction &other) const { return compare(*this, other) >= 0; }
 
-    [[maybe_unused]] double to_double() const {
-        return static_cast<double>(numerator) / static_cast<double>(denominator);
-    }
+    [[maybe_unused]] double to_double() const { return (double) (numerator) / (double) (denominator); }
 
-    friend fraction abs(const fraction &f) {
-        return fraction{std::abs(f.numerator), f.denominator};
-    }
+    [[maybe_unused]] friend fraction abs(const fraction &f) { return fraction{std::abs(f.numerator), f.denominator}; }
 
     friend std::ostream &operator<<(std::ostream &out, const fraction &frac) {
         return out << frac.numerator << '/' << frac.denominator;
     }
 };
+
+int main() {
+    fraction a = fraction(3,9);
+    std::cout << a;
+}
