@@ -1,9 +1,11 @@
-vector<int> smallest_factor;
-vector<bool> prime;
-vector<int> primes;
+#include<vector>
 
-void sieve(int maximum) {
-    maximum = max(maximum, 1);
+std::vector<int> smallest_factor;
+std::vector<bool> prime;
+std::vector<int> primes;
+
+__attribute__((unused)) void sieve(int maximum) {
+    maximum = std::max(maximum, 1);
     smallest_factor.assign(maximum + 1, 0);
     prime.assign(maximum + 1, true);
     prime[0] = prime[1] = false;
