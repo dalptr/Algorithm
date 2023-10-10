@@ -1,4 +1,6 @@
 struct [[maybe_unused]] Trie {
+    static constexpr char MIN_CHAR = 'a';
+
     struct Node {
         Node *child[26]{};
         int exist, cnt;
@@ -16,11 +18,10 @@ struct [[maybe_unused]] Trie {
 
     [[maybe_unused]] void add_string(std::string &s) const {
         Node *p = root;
-        for (auto f: s) {
-            int c = f - 'a';
-            if (p->child[c] == nullptr) p->child[c] = new Node();
-
-            p = p->child[c];
+        for (char c: s) {
+            int index = c - MIN_CHAR;
+            if (p->child[index] == nullptr) p->child[index] = new Node();
+            p = p->child[index];
             p->cnt++;
         }
         p->exist++;
@@ -28,9 +29,9 @@ struct [[maybe_unused]] Trie {
 
     [[maybe_unused]] bool delete_string_recursive(Node *p, std::string &s, int i) {
         if (i != (int) s.size()) {
-            int c = s[i] - 'a';
-            bool isChildDeleted = delete_string_recursive(p->child[c], s, i + 1);
-            if (isChildDeleted) p->child[c] = nullptr;
+            int c = s[i] - MIN_CHAR;
+            bool is_child_deleted = delete_string_recursive(p->child[c], s, i + 1);
+            if (is_child_deleted) p->child[c] = nullptr;
         } else {
             p->exist--;
         }
@@ -51,20 +52,20 @@ struct [[maybe_unused]] Trie {
 
     [[maybe_unused]] bool find_string(std::string &s) const {
         Node *p = root;
-        for (auto f: s) {
-            int c = f - 'a';
-            if (p->child[c] == nullptr) return false;
-            p = p->child[c];
+        for (char c: s) {
+            int index = c - MIN_CHAR;
+            if (p->child[index] == nullptr) return false;
+            p = p->child[index];
         }
         return (p->exist != 0);
     }
 
     [[maybe_unused]] int count_prefix(std::string &s) const {
         Node *p = root;
-        for (auto f: s) {
-            int c = f - 'a';
-            if (p->child[c] == nullptr) return 0;
-            p = p->child[c];
+        for (char c: s) {
+            int index = c - MIN_CHAR;
+            if (p->child[index] == nullptr) return 0;
+            p = p->child[index];
         }
         return p->cnt;
     }
