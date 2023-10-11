@@ -1,6 +1,6 @@
 typedef uint64_t u64;
 typedef __uint128_t u128;
-const u64 candidates[] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
+constexpr u64 candidates[] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
 
 u64 power_modulo(u128 base, u64 exponent, u64 modulo) {
     u128 result = 1;
