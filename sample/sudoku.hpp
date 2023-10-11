@@ -1,6 +1,11 @@
 // 120 microseconds / board
 #include<vector>
 
+#if(__cplusplus <= 201402L)
+#define constexpr const
+#define [[maybe_unused]]
+#endif
+
 class [[maybe_unused]] SudokuSolver {
     static constexpr int edge = 9;
     static constexpr int to_board[edge][edge] = {
