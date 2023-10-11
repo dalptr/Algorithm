@@ -1,7 +1,7 @@
 // 120 microseconds / board
 #include<vector>
 
-class SudokuSolver {
+class [[maybe_unused]] SudokuSolver {
     static constexpr int edge = 9;
     static constexpr int to_board[edge][edge] = {
             {0, 0, 0, 1, 1, 1, 2, 2, 2},
@@ -82,7 +82,7 @@ class SudokuSolver {
     }
 
 public:
-    void solve(std::vector<std::vector<char>> &board) {
+    [[maybe_unused]] void solve(std::vector<std::vector<char>> &board) {
         Board board_map{};
         board_map.board = &board;
         for (int i = 0; i < edge; ++i) {
@@ -105,4 +105,3 @@ public:
         recurse(board_map);
     }
 };
-
