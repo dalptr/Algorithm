@@ -1,7 +1,7 @@
 // 120 microseconds / board
 #include<vector>
 
-class Solution {
+class SudokuSolver {
     static constexpr int edge = 9;
     static constexpr int to_board[edge][edge] = {
             {0, 0, 0, 1, 1, 1, 2, 2, 2},
