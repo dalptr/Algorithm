@@ -5,7 +5,7 @@ vector<vector<int>> graph;
 vector<int> country_members_list;
 vector<bool> selected;
 int current_country_members;
-static constexpr int MAX_N = int(1e5);
+constexpr int MAX_N = int(1e5);
 
 void dfs(int astronaut) {
     selected[astronaut] = true;
