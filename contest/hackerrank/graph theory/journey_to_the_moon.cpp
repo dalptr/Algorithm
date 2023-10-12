@@ -1,14 +1,11 @@
-// https://www.hackerrank.com/challenges/journey-to-the-moon/problem?
-#include <vector>
-#include <iostream>
-#include <unordered_map>
-#include <cstdint>
-#include <numeric>
+#include <bits/stdc++.h>
 
-std::vector<std::vector<int>> graph;
-std::vector<int> country_members_list;
-std::vector<bool> selected;
+using namespace std;
+vector<vector<int>> graph;
+vector<int> country_members_list;
+vector<bool> selected;
 int current_country_members;
+static constexpr int MAX_N = int(1e5);
 
 void dfs(int astronaut) {
     selected[astronaut] = true;
@@ -32,32 +29,30 @@ int64_t combination(int a, int b) {
 
 int main() {
     int n, n_pair;
-    std::cin >> n >> n_pair;
+    cin >> n >> n_pair;
     graph.resize(n);
     selected.resize(n, false);
-    std::unordered_map<int, bool> mark_atstronauts;
+    bitset<MAX_N> mark_astronauts;
     for (int i = 0; i < n_pair; ++i) {
         int u, v;
-        std::cin >> u >> v;
-        mark_atstronauts[u] = mark_atstronauts[v] = true;
+        cin >> u >> v;
+        mark_astronauts[u] = mark_astronauts[v] = true;
         graph[u].push_back(v);
         graph[v].push_back(u);
     }
-    for (int atstronaut = 0; atstronaut < n; ++atstronaut) {
-        if (!mark_atstronauts[atstronaut]) {
+    for (int astronaut = 0; astronaut < n; ++astronaut) {
+        if (!mark_astronauts[astronaut]) {
             country_members_list.push_back(1);
-            selected[atstronaut] = true;
+            selected[astronaut] = true;
         }
-    }
-    for (int atstronaut = 0; atstronaut < n; ++atstronaut) {
-        if (selected[atstronaut]) continue;
+        if (selected[astronaut]) continue;
         current_country_members = 0;
-        dfs(atstronaut);
+        dfs(astronaut);
         country_members_list.push_back(current_country_members);
     }
-    int total_astronauts = std::accumulate(country_members_list.begin(), country_members_list.end(), 0);
+    int total_astronauts = accumulate(country_members_list.begin(), country_members_list.end(), 0);
     size_t ans = combination(total_astronauts, 2);
     for (int country_members: country_members_list)
         ans -= combination(country_members, 2);
-    std::cout << ans;
+    cout << ans;
 }
