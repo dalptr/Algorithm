@@ -57,7 +57,7 @@ int main() {
     }
     int total_astronauts = std::accumulate(country_members_list.begin(), country_members_list.end(), 0);
     size_t ans = combination(total_astronauts, 2);
-    for (int country_member: country_members_list)
-        ans -= combination(country_member, 2);
+    for (int country_members: country_members_list)
+        ans -= combination(country_members, 2);
     std::cout << ans;
 }
