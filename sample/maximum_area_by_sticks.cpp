@@ -6,7 +6,7 @@ constexpr int MAX_STICKS = 16;
 int sticks[MAX_STICKS];
 bitset<MAX_STICKS> used_stick;
 int dp[MAX_STICKS][MAX_STICK_LENGTH * MAX_STICKS];
-int ans = -1;
+int max_area = -1;
 int number_of_sticks;
 
 int calculate_possible_length(int pos, const vector<int> &selected_sticks, int current_length, const int max_length) {
@@ -32,37 +32,37 @@ int calculate_possible_length(int pos, const vector<int> &selected_sticks, int c
 void solve() {
     vector<int> sticks_for_height;
     vector<int> sticks_for_width;
-    int maximum_height = 0, maximum_width = 0;
+    int maximum_2_height = 0, maximum_2_width = 0;
     for (int i = 0; i < number_of_sticks; i++) {
         if (used_stick[i]) {
             sticks_for_height.push_back(sticks[i]);
-            maximum_height += sticks[i];
+            maximum_2_height += sticks[i];
         } else {
             sticks_for_width.push_back(sticks[i]);
-            maximum_width += sticks[i];
+            maximum_2_width += sticks[i];
         }
     }
 
-    if (maximum_width * maximum_height / 4 <= ans)
+    if (maximum_2_width * maximum_2_height / 4 <= max_area)
         return;
 
     for (size_t i = 0; i <= sticks_for_height.size(); ++i) {
-        for (size_t j = 0; j <= maximum_height; ++j)
+        for (size_t j = 0; j <= maximum_2_height; ++j)
             dp[i][j] = -1;
     }
-    int possible_height = calculate_possible_length(0, sticks_for_height, 0, maximum_height);
+    int possible_height = calculate_possible_length(0, sticks_for_height, 0, maximum_2_height);
     if (possible_height <= 0)
         return;
 
     for (size_t i = 0; i <= sticks_for_width.size(); ++i) {
-        for (size_t j = 0; j <= maximum_width; ++j)
+        for (size_t j = 0; j <= maximum_2_width; ++j)
             dp[i][j] = -1;
     }
 
-    int possible_width = calculate_possible_length(0, sticks_for_width, 0, maximum_width);
+    int possible_width = calculate_possible_length(0, sticks_for_width, 0, maximum_2_width);
     if (possible_width <= 0)
         return;
-    ans = max(ans, possible_height * possible_width);
+    max_area = max(max_area, possible_height * possible_width);
 }
 
 int main() {
@@ -79,9 +79,8 @@ int main() {
         solve();
     }
     auto end = chrono::high_resolution_clock::now();
-    // microseconds
     auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
     cerr << "\nTime taken by function: "
          << duration.count() << " microseconds" << '\n';
-    cout << ans;
+    cout << max_area;
 }
