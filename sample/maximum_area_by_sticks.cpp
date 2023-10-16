@@ -5,28 +5,29 @@ constexpr int MAX_STICK_LENGTH = 10;
 constexpr int MAX_STICKS = 16;
 int sticks[MAX_STICKS];
 bitset<MAX_STICKS> used_stick;
-int dp[MAX_STICKS][MAX_STICK_LENGTH * MAX_STICKS];
+bool dp[MAX_STICKS][MAX_STICK_LENGTH * MAX_STICKS];
 int max_area = -1;
 int number_of_sticks;
 
-int calculate_possible_length(int pos, const vector<int> &selected_sticks, int current_length, const int max_length) {
+bool is_possible_divide(int pos, const vector<int> &selected_sticks, int current_length, const int max_length) {
     if (current_length > max_length / 2)
-        return INT_MIN;
-    int &res = dp[pos][current_length];
-    if (res != -1)
-        return res;
-    if (pos == selected_sticks.size())
-        return (current_length == 0 ? 0 : INT_MIN);
-    int lhs = calculate_possible_length(pos + 1, selected_sticks, current_length, max_length);
-    int rhs = calculate_possible_length(pos + 1, selected_sticks, current_length + selected_sticks[pos], max_length) +
-              selected_sticks[pos];
-    rhs = max(rhs,
-              calculate_possible_length(pos + 1, selected_sticks, abs(current_length - selected_sticks[pos]),
-                                        max_length) +
-              max(0, selected_sticks[pos] - current_length));
-
-    res = max(lhs, rhs);
-    return res;
+        return false;
+    bool &is_possible = dp[pos][current_length];
+    if (is_possible) return is_possible;
+    if (pos == selected_sticks.size()) return false;
+    if (is_possible_divide(pos + 1, selected_sticks, current_length, max_length)) {
+        is_possible = true;
+        return true;
+    }
+    if (is_possible_divide(pos + 1, selected_sticks, current_length + selected_sticks[pos], max_length) +
+        selected_sticks[pos]) {
+        is_possible = true;
+        return true;
+    }
+    is_possible = is_possible_divide(pos + 1, selected_sticks, abs(current_length - selected_sticks[pos]),
+                                     max_length) +
+                  max(0, selected_sticks[pos] - current_length);
+    return is_possible;
 }
 
 void solve() {
@@ -48,20 +49,19 @@ void solve() {
 
     for (size_t i = 0; i <= sticks_for_height.size(); ++i) {
         for (size_t j = 0; j <= maximum_2_height; ++j)
-            dp[i][j] = -1;
+            dp[i][j] = false;
     }
-    int possible_height = calculate_possible_length(0, sticks_for_height, 0, maximum_2_height);
-    if (possible_height <= 0)
+    if (!is_possible_divide(0, sticks_for_height, 0, maximum_2_height))
         return;
 
     for (size_t i = 0; i <= sticks_for_width.size(); ++i) {
         for (size_t j = 0; j <= maximum_2_width; ++j)
-            dp[i][j] = -1;
+            dp[i][j] = false;
     }
 
-    int possible_width = calculate_possible_length(0, sticks_for_width, 0, maximum_2_width);
-    if (possible_width <= 0)
+    if (!is_possible_divide(0, sticks_for_width, 0, maximum_2_width))
         return;
+    int possible_height = maximum_2_height / 2, possible_width = maximum_2_width / 2;
     max_area = max(max_area, possible_height * possible_width);
 }
 
@@ -74,8 +74,8 @@ int main() {
     }
     auto start = chrono::high_resolution_clock::now();
     const int total_permutations = (1 << number_of_sticks);
-    for (int mask = 0; mask < total_permutations; ++mask) {
-        used_stick = mask;
+    for (int dec = 0; dec < total_permutations; ++dec) {
+        used_stick = dec;
         solve();
     }
     auto end = chrono::high_resolution_clock::now();
