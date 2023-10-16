@@ -43,6 +43,9 @@ void solve() {
         }
     }
 
+    if (maximum_width * maximum_height / 4 <= ans)
+        return;
+
     for (size_t i = 0; i <= sticks_for_height.size(); ++i) {
         for (size_t j = 0; j <= maximum_height; ++j)
             dp[i][j] = -1;
