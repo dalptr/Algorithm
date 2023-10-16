@@ -4,14 +4,13 @@ using namespace std;
 constexpr int MAX_STICK_LENGTH = 10;
 constexpr int MAX_STICKS = 16;
 int sticks[MAX_STICKS];
-bitset<MAX_STICKS> used_stick;
+bitset<MAX_STICKS> used_stick; 
 bool dp[MAX_STICKS][MAX_STICK_LENGTH * MAX_STICKS];
 int max_area = -1;
 int number_of_sticks;
 
 bool is_possible_divide(int pos, const vector<int> &selected_sticks, int current_length, const int max_length) {
-    if (current_length > max_length / 2)
-        return false;
+    if (current_length > max_length) return false;
     bool &is_possible = dp[pos][current_length];
     if (is_possible) return is_possible;
     if (pos == selected_sticks.size()) return false;
@@ -33,36 +32,36 @@ bool is_possible_divide(int pos, const vector<int> &selected_sticks, int current
 void solve() {
     vector<int> sticks_for_height;
     vector<int> sticks_for_width;
-    int maximum_2_height = 0, maximum_2_width = 0;
+    int height = 0, width = 0;
     for (int i = 0; i < number_of_sticks; i++) {
         if (used_stick[i]) {
             sticks_for_height.push_back(sticks[i]);
-            maximum_2_height += sticks[i];
+            height += sticks[i];
         } else {
             sticks_for_width.push_back(sticks[i]);
-            maximum_2_width += sticks[i];
+            width += sticks[i];
         }
     }
+    width /= 2, height /= 2;
 
-    if (maximum_2_width * maximum_2_height / 4 <= max_area)
+    if (width * height <= max_area)
         return;
 
     for (size_t i = 0; i <= sticks_for_height.size(); ++i) {
-        for (size_t j = 0; j <= maximum_2_height; ++j)
+        for (size_t j = 0; j <= height; ++j)
             dp[i][j] = false;
     }
-    if (!is_possible_divide(0, sticks_for_height, 0, maximum_2_height))
+    if (!is_possible_divide(0, sticks_for_height, 0, height))
         return;
 
     for (size_t i = 0; i <= sticks_for_width.size(); ++i) {
-        for (size_t j = 0; j <= maximum_2_width; ++j)
+        for (size_t j = 0; j <= width; ++j)
             dp[i][j] = false;
     }
 
-    if (!is_possible_divide(0, sticks_for_width, 0, maximum_2_width))
+    if (!is_possible_divide(0, sticks_for_width, 0, width))
         return;
-    int possible_height = maximum_2_height / 2, possible_width = maximum_2_width / 2;
-    max_area = max(max_area, possible_height * possible_width);
+    max_area = max(max_area, height * width);
 }
 
 int main() {
