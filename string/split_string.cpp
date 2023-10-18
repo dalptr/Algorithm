@@ -1,9 +1,15 @@
-    std::vector<std::string> split(const std::string &s, char delim) {
-        std::vector<std::string> result;
-        std::stringstream ss(s);
-        std::string item;
-        while (getline(ss, item, delim)) {
-            result.push_back(item);
+    void split(std::vector<std::string> &words, const std::string &text, char delimiter) {
+        words.clear();
+        std::string word;
+        for (char c: text) {
+            if (c == delimiter) {
+                words.push_back(word);
+                word.clear();
+            } else {
+                word.push_back(c);
+            }
         }
-        return result;
+        if (!word.empty()) {
+            words.push_back(word);
+        }
     }
