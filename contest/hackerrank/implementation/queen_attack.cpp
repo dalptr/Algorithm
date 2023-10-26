@@ -13,14 +13,14 @@ int is_valid_position(int r, int c) {
 }
 
 void move(const int row_step, const int col_step) {
-    int x = queen_r + row_step;
-    int y = queen_c + col_step;
-    while (is_valid_position(x, y)) {
-        if (is_obstacle[{x, y}]) {
+    int r = queen_r + row_step;
+    int c = queen_c + col_step;
+    while (is_valid_position(r, c)) {
+        if (is_obstacle[{r, c}]) {
             break;
         }
-        x += row_step;
-        y += col_step;
+        r += row_step;
+        c += col_step;
         ++ans;
     }
 }
