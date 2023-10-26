@@ -15,15 +15,18 @@ struct direction {
     int col_step;
 };
 
+constexpr int INCREMENT = 1;
+constexpr int DECREMENT = -1;
+constexpr int NO_CHANGE = 0;
 constexpr direction QUEEN_DIRECTIONS[] = {
-        {1,  0},
-        {-1, 0},
-        {0,  1},
-        {0,  -1},
-        {1,  1},
-        {1,  -1},
-        {-1, 1},
-        {-1, -1}
+        {INCREMENT, NO_CHANGE},
+        {DECREMENT, NO_CHANGE},
+        {NO_CHANGE, INCREMENT},
+        {NO_CHANGE, DECREMENT},
+        {INCREMENT, INCREMENT},
+        {INCREMENT, DECREMENT},
+        {DECREMENT, INCREMENT},
+        {DECREMENT, DECREMENT}
 };
 
 void move(direction direction) {
