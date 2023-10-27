@@ -1,63 +1,56 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 
-using namespace std;
-
-#ifdef LOCAL
-
-[[maybe_unused]] string to_string(char c) {
-    const string char_bracket = "'";
-    return char_bracket + c + char_bracket;
+template<typename T>
+std::string to_str(T t) {
+    if constexpr (std::is_same_v<T, char>) {
+        return "'" + std::string(1, t) + "'";
+    } else if constexpr (std::is_same_v<T, std::string>) {
+        return "\"" + t + "\"";
+    } else if constexpr (std::is_same_v<T, bool>) {
+        return t ? "true" : "false";
+    } else if constexpr (std::is_same_v<T, const char *>) {
+        return "\"" + std::string(t) + "\"";
+    } else if constexpr (std::is_integral_v<T> ||
+                         std::is_floating_point_v<T>) {
+        return std::to_string(t);
+    } else {
+        static_assert(false, "Unsupported type");
+        return ""; // avoid warning
+    }
 }
 
-string to_string(const string &s) {
-    constexpr char quote = '"';
-    return quote + s + quote;
-}
-
-template<typename A, typename B>
-string to_string(const pair<A, B> &p) {
-    return "(" + to_string(p.first) + ", " + to_string(p.second) + ")";
-}
-
-[[maybe_unused]] string to_string(bool value) {
-    return (value ? "true" : "false");
+template<typename T, typename U>
+std::string to_str(const std::pair<T, U> &p) {
+    return "(" + to_str(p.first) + ", " + to_str(p.second) + ")";
 }
 
 template<typename T>
-string to_string([[maybe_unused]] const T &vector) {
+std::string to_str([[maybe_unused]] std::vector<T> &vec) {
     bool first = true;
-    string res = "{";
-    for (const auto element: vector) {
+    std::string res = "{";
+    for (const auto &element: vec) {
         if (!first) {
             res += ", ";
         }
         first = false;
-        res += to_string(element);
+        res += to_str(element);
     }
     res += "}";
     return res;
 }
 
-[[maybe_unused]] string to_string(const char *s) {
-    return to_string((string) s);
-}
-
-void dbg_out() { cerr << "]\n"; }
+void browser() { std::cerr << "]\n"; }
 
 template<typename Head, typename... Tail>
-void dbg_out(Head H, Tail... T) {
-    cerr << to_string(H) << ' ';
-    dbg_out(T...);
+void browser(Head H, Tail... T) {
+    std::cerr << to_str(H) << ' ';
+    browser(T...);
 }
 
 template<typename H, typename... Tail>
-void debug(H, Tail... T) {
-    cerr << "[ ";
-    dbg_out(T...);
+void watch(H val, Tail... T) {
+    std::cerr << "[ ";
+    browser(val, T...);
 }
 
-#define watch(...) cerr << "Line: " << __LINE__ << " [ "; cerr << #__VA_ARGS__ << " ] "; debug(__VA_ARGS__)
-
-#else
-#define watch(...)
-#endif
+#define debug(...) std::cerr << "Line: " << __LINE__ << " [ "; std::cerr << #__VA_ARGS__ << " ] "; watch(__VA_ARGS__)
