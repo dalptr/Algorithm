@@ -36,7 +36,7 @@ struct [[maybe_unused]] Point {
         return Point(x * cos(a) - y * sin(a), x * sin(a) + y * cos(a));
     }
 
-    friend ostream &operator<<(ostream &os, Point p) {
+    friend std::ostream &operator<<(std::ostream &os, Point p) {
         return os << "(" << p.x << "," << p.y << ")";
     }
 };
