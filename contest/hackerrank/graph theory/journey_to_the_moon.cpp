@@ -10,9 +10,9 @@ constexpr int MAX_N = int(1e5);
 void dfs(int astronaut) {
     selected[astronaut] = true;
     ++current_country_members;
-    for (int astronaut_of_same_country: graph[astronaut]) {
-        if (selected[astronaut_of_same_country]) continue;
-        dfs(astronaut_of_same_country);
+    for (int astronaut_from_same_country: graph[astronaut]) {
+        if (selected[astronaut_from_same_country]) continue;
+        dfs(astronaut_from_same_country);
     }
 }
 
