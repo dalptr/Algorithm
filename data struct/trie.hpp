@@ -11,7 +11,7 @@ struct [[maybe_unused]] Trie {
         root = new Node();
     }
 
-    [[maybe_unused]] void insert(const string &word) const {
+    [[maybe_unused]] void add_string(const string &word) const {
         Node *node = root;
         for (char c: word) {
             if (node->children[c - FIRST_LOWER_CASE] == nullptr)
@@ -22,7 +22,7 @@ struct [[maybe_unused]] Trie {
 
     }
 
-    [[maybe_unused]] void erase(const string &word) const {
+    [[maybe_unused]] void remove_string(const string &word) const {
         Node *node = root;
         for (char c: word) {
             if (node->children[c - FIRST_LOWER_CASE] == nullptr) return;
@@ -31,7 +31,7 @@ struct [[maybe_unused]] Trie {
         node->is_word = false;
     }
 
-    [[maybe_unused]] bool search(const string &word) const {
+    [[maybe_unused]] bool is_exist(const string &word) const {
         Node *node = root;
         for (char c: word) {
             if (node->children[c - FIRST_LOWER_CASE] == nullptr) return false;
@@ -65,11 +65,11 @@ struct [[maybe_unused]] Trie {
         return true;
     }
 
-    int count(Node *node) const {
+    int count_prefix_recursive(Node *node) const {
         if (node == nullptr) return 0;
         int ans = node->is_word;
         for (auto &i: node->children) {
-            ans += count(i);
+            ans += count_prefix_recursive(i);
         }
         return ans;
     }
@@ -80,6 +80,6 @@ struct [[maybe_unused]] Trie {
             if (node->children[c - FIRST_LOWER_CASE] == nullptr) return 0;
             node = node->children[c - FIRST_LOWER_CASE];
         }
-        return count(node);
+        return count_prefix_recursive(node);
     }
 };
