@@ -1,72 +1,69 @@
-struct [[maybe_unused]] Trie {
-    static constexpr char MIN_CHAR = 'a';
-
+struct Trie {
     struct Node {
-        Node *child[26]{};
-        int exist, cnt;
-
-        Node() {
-            exist = cnt = 0;
-        }
+        Node *children[26]{};
+        bool is_word = false;
     };
-
     Node *root;
 
     Trie() {
         root = new Node();
-    };
-
-    [[maybe_unused]] void add_string(std::string &s) const {
-        Node *p = root;
-        for (char c: s) {
-            int index = c - MIN_CHAR;
-            if (p->child[index] == nullptr) p->child[index] = new Node();
-            p = p->child[index];
-            p->cnt++;
-        }
-        p->exist++;
     }
 
-    [[maybe_unused]] bool delete_string_recursive(Node *p, std::string &s, int i) {
-        if (i != (int) s.size()) {
-            int c = s[i] - MIN_CHAR;
-            bool is_child_deleted = delete_string_recursive(p->child[c], s, i + 1);
-            if (is_child_deleted) p->child[c] = nullptr;
-        } else {
-            p->exist--;
+    static constexpr char FIRST_LOWER_CASE = 'a';
+
+    void insert(const string &word) const {
+        Node *node = root;
+        for (char c: word) {
+            if (node->children[c - FIRST_LOWER_CASE] == nullptr)
+                node->children[c - FIRST_LOWER_CASE] = new Node();
+            node = node->children[c - FIRST_LOWER_CASE];
         }
-        if (p != root) {
-            p->cnt--;
-            if (p->cnt == 0) {
-                delete (p);
-                return true;
-            }
-        }
-        return false;
+        node->is_word = true;
+
     }
 
-    [[maybe_unused]] void delete_string(std::string s) {
-        if (!find_string(s)) return;
-        delete_string_recursive(root, s, 0);
+    void erase(const string &word) const {
+        Node *node = root;
+        for (char c: word) {
+            if (node->children[c - FIRST_LOWER_CASE] == nullptr) return;
+            node = node->children[c - FIRST_LOWER_CASE];
+        }
+        node->is_word = false;
     }
 
-    [[maybe_unused]] bool find_string(std::string &s) const {
-        Node *p = root;
-        for (char c: s) {
-            int index = c - MIN_CHAR;
-            if (p->child[index] == nullptr) return false;
-            p = p->child[index];
+    bool search(const string &word) const {
+        Node *node = root;
+        for (char c: word) {
+            if (node->children[c - FIRST_LOWER_CASE] == nullptr) return false;
+            node = node->children[c - FIRST_LOWER_CASE];
         }
-        return (p->exist != 0);
+        return node->is_word;
     }
 
-    [[maybe_unused]] int count_prefix(std::string &s) const {
-        Node *p = root;
-        for (char c: s) {
-            int index = c - MIN_CHAR;
-            if (p->child[index] == nullptr) return 0;
-            p = p->child[index];
+    bool starts_with(const string &prefix) const {
+        Node *node = root;
+        for (char c: prefix) {
+            if (node->children[c - FIRST_LOWER_CASE] == nullptr) return false;
+            node = node->children[c - FIRST_LOWER_CASE];
         }
-        return p->cnt;
+        return true;
+    }
+
+    int count(Node *node) const {
+        if (node == nullptr) return 0;
+        int ans = node->is_word;
+        for (auto &i: node->children) {
+            ans += count(i);
+        }
+        return ans;
+    }
+
+    int count_prefix(const string &prefix) const {
+        Node *node = root;
+        for (char c: prefix) {
+            if (node->children[c - FIRST_LOWER_CASE] == nullptr) return 0;
+            node = node->children[c - FIRST_LOWER_CASE];
+        }
+        return count(node);
     }
 };
