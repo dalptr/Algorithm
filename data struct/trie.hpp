@@ -1,6 +1,8 @@
-struct Trie {
+struct [[maybe_unused]] Trie {
+    static constexpr char FIRST_LOWER_CASE = 'a';
+    static constexpr size_t ALPHABET_SIZE = 26;
     struct Node {
-        Node *children[26]{};
+        Node *children[ALPHABET_SIZE]{};
         bool is_word = false;
     };
     Node *root;
@@ -9,9 +11,7 @@ struct Trie {
         root = new Node();
     }
 
-    static constexpr char FIRST_LOWER_CASE = 'a';
-
-    void insert(const string &word) const {
+    [[maybe_unused]] void insert(const string &word) const {
         Node *node = root;
         for (char c: word) {
             if (node->children[c - FIRST_LOWER_CASE] == nullptr)
@@ -22,7 +22,7 @@ struct Trie {
 
     }
 
-    void erase(const string &word) const {
+    [[maybe_unused]] void erase(const string &word) const {
         Node *node = root;
         for (char c: word) {
             if (node->children[c - FIRST_LOWER_CASE] == nullptr) return;
@@ -31,7 +31,7 @@ struct Trie {
         node->is_word = false;
     }
 
-    bool search(const string &word) const {
+    [[maybe_unused]] bool search(const string &word) const {
         Node *node = root;
         for (char c: word) {
             if (node->children[c - FIRST_LOWER_CASE] == nullptr) return false;
@@ -40,7 +40,23 @@ struct Trie {
         return node->is_word;
     }
 
-    bool starts_with(const string &prefix) const {
+    void dictionary(vector<string> &ans, Node *node, string &word) const {
+        if (node == nullptr) return;
+        if (node->is_word) ans.push_back(word);
+        size_t index = 0;
+        for (char c = FIRST_LOWER_CASE; c < FIRST_LOWER_CASE + ALPHABET_SIZE; c++, ++index) {
+            word.push_back(c);
+            dictionary(ans, node->children[index], word);
+            word.pop_back();
+        }
+    }
+
+    [[maybe_unused]] inline void dictionary(vector<string> &ans) const {
+        string word;
+        dictionary(ans, root, word);
+    }
+
+    [[maybe_unused]] bool starts_with(const string &prefix) const {
         Node *node = root;
         for (char c: prefix) {
             if (node->children[c - FIRST_LOWER_CASE] == nullptr) return false;
@@ -58,7 +74,7 @@ struct Trie {
         return ans;
     }
 
-    int count_prefix(const string &prefix) const {
+    [[maybe_unused]] int count_prefix(const string &prefix) const {
         Node *node = root;
         for (char c: prefix) {
             if (node->children[c - FIRST_LOWER_CASE] == nullptr) return 0;
