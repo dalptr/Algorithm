@@ -1,5 +1,7 @@
 #include <bits/stdc++.h>
 
+#ifdef LOCAL
+
 template<typename T>
 std::string to_str(T t) {
     if constexpr (std::is_same_v<T, char>) {
@@ -25,7 +27,7 @@ std::string to_str(const std::pair<T, U> &p) {
 }
 
 template<typename T>
-std::string to_str([[maybe_unused]] std::vector<T> &vec) {
+std::string to_str([[maybe_unused]] const std::vector<T> &vec) {
     bool first = true;
     std::string res = "{";
     for (const auto &element: vec) {
@@ -54,3 +56,9 @@ void watch(H val, Tail... T) {
 }
 
 #define debug(...) std::cerr << "Line: " << __LINE__ << " [ "; std::cerr << #__VA_ARGS__ << " ] "; watch(__VA_ARGS__)
+
+#else
+
+#define debug(...)
+
+#endif
