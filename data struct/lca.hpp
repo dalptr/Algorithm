@@ -236,3 +236,65 @@ struct LCA {
         return result;
     }
 };
+
+#define BUILD_SUBTREES 0
+
+template<typename T>
+struct [[maybe_unused]] tree_sum_DS {
+    const LCA &lca;
+    bool vertex_mode = false;
+    vector<T> values;
+    range_add_point_query_tree<T> path_tree;
+    fenwick_tree<T> tour_tree;
+    T tree_sum = T();
+    
+    [[maybe_unused]] explicit tree_sum_DS(const LCA &_lca) : lca(_lca) {}
+
+    
+    [[maybe_unused]] void init(bool _vertex_mode) {
+        vertex_mode = _vertex_mode;
+        values.assign(lca.n, T());
+        path_tree.init(lca.n);
+#ifdef BUILD_SUBTREES
+        tour_tree.init(lca.n);
+#endif
+    }
+
+    void update_node(int node, T change) {
+        values[node] += change;
+        tree_sum += change;
+        path_tree.update(lca.tour_start[node], lca.tour_end[node], change);
+#ifdef BUILD_SUBTREES
+        tour_tree.update(lca.tour_start[node], change);
+#endif
+    }
+
+    [[maybe_unused]] void update_edge(int a, int b, T change) {
+        // Edge values are stored at the deeper node.
+        if (lca.parent[a] == b)
+            swap(a, b);
+
+        assert(a == lca.parent[b]);
+        update_node(b, change);
+    }
+
+    // Returns the sum of tree values for all nodes / edges on the path from `node` to the root, inclusive.
+    T query_root_path(int node) const {
+        return path_tree.query(lca.tour_start[node]);
+    }
+
+    // Returns the sum of tree values for all nodes / edges on the path from `u` to `v`, inclusive.
+    [[maybe_unused]] T query_path(int u, int v, int anc = -1) const {
+        if (anc < 0)
+            anc = lca.get_lca(u, v);
+
+        return query_root_path(u) + query_root_path(v) - 2 * query_root_path(anc) + (vertex_mode ? values[anc] : T());
+    }
+
+    // Returns the sum of tree values for all nodes / edges in the subtree of `node`, inclusive when in `vertex_mode`.
+    [[maybe_unused]] T query_subtree(int node) const {
+#ifdef BUILD_SUBTREES
+        return tour_tree.query(lca.tour_start[node], lca.tour_end[node]) - (vertex_mode ? T() : values[node]);
+#endif
+    }
+};
