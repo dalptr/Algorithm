@@ -44,9 +44,9 @@ int main() {
             cin >> square;
         }
     }
-    vector<vector<bool>> placed_queen(BOARD_SIZE, vector<bool>(BOARD_SIZE, false));
+    vector<vector<bool>> placed_queens(BOARD_SIZE, vector<bool>(BOARD_SIZE, false));
     vector<bool> visited_cell(BOARD_SIZE, false);
-    backtrack(placed_queen, 0, visited_cell, 0);
+    backtrack(placed_queens, 0, visited_cell, 0);
     cout << possible_ways;
     return 0;
 }
